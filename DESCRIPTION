@@ -1,0 +1,20 @@
+Package: packgraph
+Title: Examine and Analyse Function Call Graphs of R Packages
+Version: 0.0.0.001
+Authors@R: c(
+    person("Mark", "Padgham", email="mark.padgham@email.com", role=c("aut", "cre")))
+Description: Examine and analyse function call graphs of R packages.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+NeedsCompilation: yes
+Depends: R (>= 3.5.0)
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+URL: https://github.com/mpadge/packgraph
+BugReports: https://github.com/mpadge/packgraph/issues
+RoxygenNote: 7.0.2
+Roxygen: list(markdown = TRUE)
+Language: en-GB
