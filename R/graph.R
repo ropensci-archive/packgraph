@@ -44,6 +44,7 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
                                       main = paste0 (pkgmap$name, " network"))
 
         print (vn)
+        edges$width <- NULL
     }
 
     return (list (nodes = nodes, edges = edges))

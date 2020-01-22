@@ -18,3 +18,50 @@ source("https://install-github.me/r-lib/pkgapi")
 ```
 
 (or `remotes::install_github()` will also work).
+
+Currently contains a single function, `pg_graph()`, which returns all
+exported and non-exported functions from a package (as `nodes`), and
+tallies of all functional connections between these (as `edges`). The
+function also includes a `plot` parameter which can be used to visualize
+the resultant network using the [`visNetwork`
+package](https://github.com/datastorm-open/visNetwork).
+
+``` r
+git2r::clone ("https://github.com/ropensci/git2r", local_path = "./git2r")
+# Currently needs absolute file paths to work
+pkg_dir <- tools::file_path_as_absolute ("./git2r")
+g <- pg_graph (pkg_dir, plot = TRUE)
+g
+```
+
+    ## $nodes
+    ## # A tibble: 168 x 3
+    ##    id                           label                        group
+    ##    <chr>                        <chr>                        <dbl>
+    ##  1 .onUnload                    .onUnload                        1
+    ##  2 [.git_tree                   [.git_tree                       1
+    ##  3 add                          add                              1
+    ##  4 add_session_info             add_session_info                 1
+    ##  5 ahead_behind                 ahead_behind                     1
+    ##  6 as.character.git_time        as.character.git_time            1
+    ##  7 as.data.frame.git_commit     as.data.frame.git_commit         1
+    ##  8 as.data.frame.git_repository as.data.frame.git_repository     1
+    ##  9 as.data.frame.git_tree       as.data.frame.git_tree           1
+    ## 10 as.list.git_tree             as.list.git_tree                 1
+    ## # … with 158 more rows
+    ## 
+    ## $edges
+    ## # A tibble: 202 x 3
+    ##    from                         to                    n
+    ##    <chr>                        <chr>             <dbl>
+    ##  1 [.git_tree                   lookup                1
+    ##  2 add                          lookup_repository     1
+    ##  3 add                          workdir               1
+    ##  4 ahead_behind                 lookup_commit         2
+    ##  5 as.data.frame.git_repository commits               1
+    ##  6 as.list.git_tree             lookup                1
+    ##  7 blame                        lookup_repository     1
+    ##  8 blob_create                  lookup_repository     1
+    ##  9 branches                     lookup_repository     1
+    ## 10 bundle_r_package             clone                 1
+    ## # … with 192 more rows
