@@ -9,6 +9,13 @@ Encoding: UTF-8
 LazyData: true
 NeedsCompilation: yes
 Depends: R (>= 3.5.0)
+Imports:
+    dplyr,
+    igraph,
+    magrittr,
+    pkgapi,
+    tibble,
+    visNetwork
 Suggests: 
     knitr,
     rmarkdown
