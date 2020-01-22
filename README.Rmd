@@ -32,7 +32,8 @@ id <- c (".onUnload", "[.git_tree", "add", "add_session_info", "ahead_behind",
          "as.character.git_time", "as.data.frame.git_commit",
          "as.data.frame.git_repository", "as.data.frame.git_tree",
          "as.list.git_tree", rep (NA, 158))
-nodes <- tibble::tibble (id = id, label = id, group = 1)
+nodes <- tibble::tibble (id = id, label = id, export = FALSE, group = 1)
+nodes$export [c (3, 5)] <- TRUE
 
 
 from <- c ("[.git_tree", "add", "add", "ahead_behind",

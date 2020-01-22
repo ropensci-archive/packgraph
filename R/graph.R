@@ -18,7 +18,10 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
         dplyr::ungroup ()
     edges$from <- paste0 (pkgmap$name, "::", edges$from)
     nodes <- unique (c (edges$from, edges$to))
-    nodes <- tibble::tibble (id = nodes, label = nodes)
+    export <- gsub (paste0 (pkgmap$name, "::"), "", nodes) %in% pkgmap$exports
+    nodes <- tibble::tibble (id = nodes,
+                             label = nodes,
+                             export = export)
 
     # reduce to only package-internal calls:
     nodes <- nodes [grep (paste0 ("^", pkgmap$name, "::"), nodes$id), ]

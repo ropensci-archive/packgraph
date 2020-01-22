@@ -35,19 +35,19 @@ g
 ```
 
     ## $nodes
-    ## # A tibble: 168 x 3
-    ##    id                           label                        group
-    ##    <chr>                        <chr>                        <dbl>
-    ##  1 .onUnload                    .onUnload                        1
-    ##  2 [.git_tree                   [.git_tree                       1
-    ##  3 add                          add                              1
-    ##  4 add_session_info             add_session_info                 1
-    ##  5 ahead_behind                 ahead_behind                     1
-    ##  6 as.character.git_time        as.character.git_time            1
-    ##  7 as.data.frame.git_commit     as.data.frame.git_commit         1
-    ##  8 as.data.frame.git_repository as.data.frame.git_repository     1
-    ##  9 as.data.frame.git_tree       as.data.frame.git_tree           1
-    ## 10 as.list.git_tree             as.list.git_tree                 1
+    ## # A tibble: 168 x 4
+    ##    id                           label                        export group
+    ##    <chr>                        <chr>                        <lgl>  <dbl>
+    ##  1 .onUnload                    .onUnload                    FALSE      1
+    ##  2 [.git_tree                   [.git_tree                   FALSE      1
+    ##  3 add                          add                          TRUE       1
+    ##  4 add_session_info             add_session_info             FALSE      1
+    ##  5 ahead_behind                 ahead_behind                 TRUE       1
+    ##  6 as.character.git_time        as.character.git_time        FALSE      1
+    ##  7 as.data.frame.git_commit     as.data.frame.git_commit     FALSE      1
+    ##  8 as.data.frame.git_repository as.data.frame.git_repository FALSE      1
+    ##  9 as.data.frame.git_tree       as.data.frame.git_tree       FALSE      1
+    ## 10 as.list.git_tree             as.list.git_tree             FALSE      1
     ## # … with 158 more rows
     ## 
     ## $edges
