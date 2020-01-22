@@ -30,7 +30,7 @@ package](https://github.com/datastorm-open/visNetwork).
 git2r::clone ("https://github.com/ropensci/git2r", local_path = "./git2r")
 # Currently needs absolute file paths to work
 pkg_dir <- tools::file_path_as_absolute ("./git2r")
-g <- pg_graph (pkg_dir, plot = TRUE)
+g <- pg_graph (pkg_dir, plot = FALSE)
 g
 ```
 
