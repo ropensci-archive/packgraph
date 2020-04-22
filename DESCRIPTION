@@ -23,6 +23,6 @@ Suggests:
 VignetteBuilder: knitr
 URL: https://github.com/mpadge/packgraph
 BugReports: https://github.com/mpadge/packgraph/issues
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 Language: en-GB
