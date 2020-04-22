@@ -34,11 +34,12 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
 
     cl <- igraph::graph_from_data_frame (edges) %>%
         igraph::clusters ()
-    nodes$group <- cl$membership [match (nodes$id, names (cl$membership))]
+    nodes$group <- cl$membership [match (nodes$id, names (cl$membership))] %>%
+        as.integer ()
+    index <- which (is.na (nodes$group))
+    nodes$group [index] <- max (nodes$group, na.rm = TRUE) + seq (index)
 
     if (plot) {
-        index <- which (is.na (nodes$group))
-        nodes$group [index] <- max (nodes$group, na.rm = TRUE) + seq (index)
         edges$width <- 10 * edges$n
         vn <- visNetwork::visNetwork (nodes, edges,
                                       main = paste0 (pkgmap$name, " network"))
