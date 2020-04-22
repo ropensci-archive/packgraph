@@ -55,7 +55,10 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
         nodes$value <- NULL
     }
 
-    return (list (nodes = nodes, edges = edges))
+    res <- list (nodes = nodes, edges = edges)
+    attr (res, "pkg_name") <- pkg_name (pkg_dir)
+
+    return (res)
 }
 
 node_centrality <- function (nodes, edges)

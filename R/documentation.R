@@ -74,9 +74,9 @@ get_one_doc <- function (rdfile) {
                           }
                           if (nchar (i [1]) == 0) i <- i [-1]
                           i [length (i)] <- gsub ("\\}$", "", i [length (i)])
-                          while (nchar (tail (i, 1)) == 0)
+                          while (nchar (utils::tail (i, 1)) == 0)
                               i <- i [-length (i)]
-                          if (curly & tail (i, 1) == "}")
+                          if (curly & utils::tail (i, 1) == "}")
                               i <- i [-length (i)]
 
                           return (i)    })

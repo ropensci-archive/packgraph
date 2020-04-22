@@ -30,11 +30,9 @@ pg_report <- function (g)
     num_clusters <- length (clusters)
     num_isolated <- length (isolated)
 
-    p_name <- pkg_name (pkg_dir)
-
-    message (cli::rule (line = 2, left = p_name, col = "green"))
+    message (cli::rule (line = 2, left = attr (g, "pkg_name"), col = "green"))
     cli::cli_text ("")
-    cli::cli_text (cli::col_blue (paste0 ("   The ", p_name,
+    cli::cli_text (cli::col_blue (paste0 ("   The ", attr (g, "pkg_name"),
                                           " package has ",
                                           nrow (exports),
                                           " exported functions, and ",
