@@ -39,14 +39,30 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
     index <- which (is.na (nodes$group))
     nodes$group [index] <- max (nodes$group, na.rm = TRUE) + seq (index)
 
+    nodes$centrality <- node_centrality (nodes, edges)
+
     if (plot) {
         edges$width <- 10 * edges$n
+        edges$arrows <- "to"
+        nodes$value <- nodes$centrality
         vn <- visNetwork::visNetwork (nodes, edges,
                                       main = paste0 (pkgmap$name, " network"))
+            #visNetwork::visEdges (arrows = list (to = list (enabled = TRUE,
+            #                                                scaleFactor = 0.5)))
 
         print (vn)
-        edges$width <- NULL
+        edges$width <- edges$arrows <- NULL
+        nodes$value <- NULL
     }
 
     return (list (nodes = nodes, edges = edges))
+}
+
+node_centrality <- function (nodes, edges)
+{
+    ig <- igraph::graph_from_data_frame (edges, vertices = nodes)
+    ig <- igraph::set_edge_attr (ig, "weight",
+                                 value = igraph::edge.attributes (ig)$n)
+    btw <- igraph::betweenness (ig)
+    btw [match (names (btw), nodes$id)]
 }
