@@ -10,6 +10,7 @@ LazyData: true
 NeedsCompilation: yes
 Depends: R (>= 3.5.0)
 Imports:
+    cli,
     dplyr,
     igraph,
     magrittr,
