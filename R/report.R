@@ -18,7 +18,7 @@ pg_report <- function (g)
     cluster_groups <- as.integer (names (export_table) [which (export_table > 1)])
     isolated_groups <- as.integer (names (export_table) [which (export_table == 1)])
     clusters <- exports [which (exports$group %in% cluster_groups), ]
-    isolated <- exports [which (exports$group %in% isolated_groups), "id", drop = TRUE]
+    isolated <- exports [which (exports$group %in% isolated_groups), "name", drop = TRUE]
 
     # base-r way of gropuing and ordering
     clusters <- lapply (split (clusters, f = factor (clusters$group)),
@@ -54,7 +54,7 @@ pg_report <- function (g)
     {
         ci <- data.frame (cluster = i,
                           n = seq (nrow (clusters [[i]])),
-                          name = clusters [[i]]$id,
+                          name = clusters [[i]]$name,
                           centrality = clusters [[i]]$centrality,
                           row.names = NULL)
         print (knitr::kable (ci))

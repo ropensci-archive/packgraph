@@ -19,22 +19,23 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
     edges$from <- paste0 (pkgmap$name, "::", edges$from)
     nodes <- unique (c (edges$from, edges$to))
     export <- gsub (paste0 (pkgmap$name, "::"), "", nodes) %in% pkgmap$exports
-    nodes <- tibble::tibble (id = nodes,
-                             label = nodes,
+    nodes <- tibble::tibble (name = nodes,
                              export = export)
 
     # reduce to only package-internal calls:
-    nodes <- nodes [grep (paste0 ("^", pkgmap$name, "::"), nodes$id), ]
+    nodes <- nodes [grep (paste0 ("^", pkgmap$name, "::"), nodes$name), ]
     edges <- edges [grep (paste0 ("^", pkgmap$name, "::"), edges$to), ]
 
-    nodes$id <- gsub (paste0 ("^", pkgmap$name, "::"), "", nodes$id)
-    nodes$label <- gsub (paste0 ("^", pkgmap$name, "::"), "", nodes$label)
+    nodes$name <- gsub (paste0 ("^", pkgmap$name, "::"), "", nodes$name)
     edges$from <- gsub (paste0 ("^", pkgmap$name, "::"), "", edges$from)
     edges$to <- gsub (paste0 ("^", pkgmap$name, "::"), "", edges$to)
 
-    cl <- igraph::graph_from_data_frame (edges) %>%
+    nodes <- nodes [nodes$name != "", ]
+    nodes$label <- NULL
+
+    cl <- igraph::graph_from_data_frame (edges, directed = FALSE) %>%
         igraph::clusters ()
-    nodes$group <- cl$membership [match (nodes$id, names (cl$membership))] %>%
+    nodes$group <- cl$membership [match (nodes$name, names (cl$membership))] %>%
         as.integer ()
     index <- which (is.na (nodes$group))
     nodes$group [index] <- max (nodes$group, na.rm = TRUE) + seq (index)
@@ -43,16 +44,14 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
 
     if (plot) {
         edges$width <- 10 * edges$n
-        edges$arrows <- "to"
         nodes$value <- nodes$centrality
+        nodes$id <- nodes$label <- nodes$name
         vn <- visNetwork::visNetwork (nodes, edges,
                                       main = paste0 (pkgmap$name, " network"))
-            #visNetwork::visEdges (arrows = list (to = list (enabled = TRUE,
-            #                                                scaleFactor = 0.5)))
 
         print (vn)
-        edges$width <- edges$arrows <- NULL
-        nodes$value <- NULL
+        edges$width <- NULL
+        nodes$value <- nodes$label <- nodes$id <- NULL
     }
 
     res <- list (nodes = nodes, edges = edges)
@@ -67,5 +66,5 @@ node_centrality <- function (nodes, edges)
     ig <- igraph::set_edge_attr (ig, "weight",
                                  value = igraph::edge.attributes (ig)$n)
     btw <- igraph::betweenness (ig)
-    btw [match (names (btw), nodes$id)]
+    btw [match (names (btw), nodes$name)]
 }
