@@ -15,6 +15,8 @@ pg_report <- function (g)
     pkgstats <- get_pkg_stats (g)
 
     cli_out (pkgstats)
+
+    invisible (md_out (g, pkgstats))
 }
 
 pkg_name <- function (pkg_dir)
@@ -90,4 +92,40 @@ cli_out <- function (pkgstats)
                        " isolated functions: ",
                    cli::col_blue ("{.isolated {isolated}}"))
     }
+}
+
+md_out <- function (g, pkgstats)
+{
+    out <- c (paste0 ("## ", pkgstats$pkgname), "")
+
+    cluster_sizes <- pkgstats$cluster_sizes
+    out <- c (out, paste0 ("The ", pkgstats$pkg_name, " package has ",
+                           nrow (pkgstats$exports), " exported functions, and ",
+                           nrow (pkgstats$non_exports), "
+                           non-exported funtions. The exported functions are ",
+                           "structured into the following ",
+                           pkgstats$num_clusters, 
+                           " primary clusters containing ",
+                           "{.cluster_size {cluster_sizes}} function{?s}."),
+              "")
+
+    for (i in seq (pkgstats$clusters))
+    {
+        ci <- data.frame (cluster = i,
+                          n = seq (nrow (pkgstats$clusters [[i]])),
+                          name = pkgstats$clusters [[i]]$name,
+                          centrality = pkgstats$clusters [[i]]$centrality,
+                          row.names = NULL)
+        out <- c (out, knitr::kable (ci, format = "markdown"), "")
+    }
+
+    if (pkgstats$num_isolated > 0)
+    {
+        isolated <- pkgstats$isolated
+        out <- c (out, paste0 ("There are also ", pkgstats$num_isolated,
+                               " isolated functions:"),
+                  glue::glue ("{isolated}"))
+    }
+
+    return (out)
 }
