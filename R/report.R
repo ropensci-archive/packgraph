@@ -11,53 +11,10 @@ pg_report <- function (g)
         stop ("g must be supplied")
 
     g$nodes$centrality [g$nodes$centrality == 0] <- NA
-    non_exports <- g$nodes [!g$nodes$export, ]
-    exports <- g$nodes [g$nodes$export, ]
-    export_table <- table (exports$group)
 
-    cluster_groups <- as.integer (names (export_table) [which (export_table > 1)])
-    isolated_groups <- as.integer (names (export_table) [which (export_table == 1)])
-    clusters <- exports [which (exports$group %in% cluster_groups), ]
-    isolated <- exports [which (exports$group %in% isolated_groups), "name", drop = TRUE]
+    pkgstats <- get_pkg_stats (g)
 
-    # base-r way of gropuing and ordering
-    clusters <- lapply (split (clusters, f = factor (clusters$group)),
-                        function (i)
-                            i [order (i$centrality, decreasing = TRUE), ])
-    cluster_sizes <- vapply (clusters, function (i) nrow (i), integer (1)) %>%
-        as.character () # cli_text processing of plurals has to be char
-
-    num_clusters <- length (clusters)
-    num_isolated <- length (isolated)
-
-    message (cli::rule (line = 2, left = attr (g, "pkg_name"), col = "green"))
-    cli::cli_text ("")
-
-    txt <- paste0 ("The ", attr (g, "pkg_name"), " package has ", nrow
-                   (exports), " exported functions, and ", nrow (non_exports), "
-                   non-exported funtions. The exported functions are ",
-                   "structured into the following ", num_clusters, 
-                   " primary clusters containing ",
-                   "{.cluster_size {cluster_sizes}} function{?s}.")
-
-    cli::cli_text (cli::col_blue (txt))
-
-    for (i in seq (clusters))
-    {
-        ci <- data.frame (cluster = i,
-                          n = seq (nrow (clusters [[i]])),
-                          name = clusters [[i]]$name,
-                          centrality = clusters [[i]]$centrality,
-                          row.names = NULL)
-        print (knitr::kable (ci))
-    }
-    cli::cli_text ("")
-
-    if (num_isolated > 0)
-    {
-        cli::cli_text ("There are also ", num_isolated, " isolated functions: ",
-                       cli::col_blue ("{.isolated {isolated}}"))
-    }
+    cli_out (pkgstats)
 }
 
 pkg_name <- function (pkg_dir)
@@ -65,4 +22,72 @@ pkg_name <- function (pkg_dir)
     desc <- file.path (pkg_dir, "DESCRIPTION")
     x <- readLines (desc)
     strsplit (x [1], "Package: ") [[1]] [2]
+}
+
+get_pkg_stats <- function (g)
+{
+    pkgstats <- list (pkgname = attr (g, "pkg_name"))
+    pkgstats$non_exports <- g$nodes [!g$nodes$export, ]
+    pkgstats$exports <- g$nodes [g$nodes$export, ]
+    export_table <- table (pkgstats$exports$group)
+
+    cluster_groups <- as.integer (names (export_table) [which (export_table > 1)])
+    isolated_groups <- as.integer (names (export_table) [which (export_table == 1)])
+    clusters <- pkgstats$exports [which (pkgstats$exports$group %in%
+                                         cluster_groups), ]
+    pkgstats$isolated <- pkgstats$exports [which (pkgstats$exports$group %in%
+                                                  isolated_groups), "name",
+                                            drop = TRUE]
+
+    # base-r way of gropuing and ordering
+    pkgstats$clusters <- lapply (split (clusters, f = factor (clusters$group)),
+                                 function (i)
+                                 i [order (i$centrality, decreasing = TRUE), ])
+    pkgstats$cluster_sizes <- vapply (pkgstats$clusters,
+                                      function (i) nrow (i),
+                                      integer (1)) %>%
+        as.character () # cli_text processing of plurals has to be char
+
+    pkgstats$num_clusters <- length (pkgstats$clusters)
+    pkgstats$num_isolated <- length (pkgstats$isolated)
+
+    return (pkgstats)
+}
+
+
+cli_out <- function (pkgstats)
+{
+    message (cli::rule (line = 2, left = pkgstats$pkgname, col = "green"))
+    cli::cli_text ("")
+
+    cluster_sizes <- pkgstats$cluster_sizes
+    txt <- paste0 ("The ", pkgstats$pkg_name, " package has ",
+                   nrow (pkgstats$exports), " exported functions, and ",
+                   nrow (pkgstats$non_exports), "
+                   non-exported funtions. The exported functions are ",
+                   "structured into the following ",
+                   pkgstats$num_clusters, 
+                   " primary clusters containing ",
+                   "{.cluster_size {cluster_sizes}} function{?s}.")
+
+    cli::cli_text (cli::col_blue (txt))
+
+    for (i in seq (pkgstats$clusters))
+    {
+        ci <- data.frame (cluster = i,
+                          n = seq (nrow (pkgstats$clusters [[i]])),
+                          name = pkgstats$clusters [[i]]$name,
+                          centrality = pkgstats$clusters [[i]]$centrality,
+                          row.names = NULL)
+        print (knitr::kable (ci))
+    }
+    cli::cli_text ("")
+
+    if (pkgstats$num_isolated > 0)
+    {
+        isolated <- pkgstats$isolated
+        cli::cli_text ("There are also ", pkgstats$num_isolated,
+                       " isolated functions: ",
+                   cli::col_blue ("{.isolated {isolated}}"))
+    }
 }
