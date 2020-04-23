@@ -32,23 +32,15 @@ pg_report <- function (g)
 
     message (cli::rule (line = 2, left = attr (g, "pkg_name"), col = "green"))
     cli::cli_text ("")
-    cli::cli_text (cli::col_blue (paste0 ("   The ", attr (g, "pkg_name"),
-                                          " package has ",
-                                          nrow (exports),
-                                          " exported functions, and ",
-                                          nrow (non_exports),
-                                          " non-exported funtions\n")))
-    cli::cli_text (cli::col_blue (paste0 ("   The exported functions are ",
-                                          "structured into the following ",
-                                          num_clusters,
-                                          " primary clusters ")))
-    if (num_isolated == 0)
-        cli::cli_text (cli::col_blue (paste0 ("   containing ",
-                              "{.cluster_size {cluster_sizes}} function{?s},")))
-    else
-        cli::cli_text (cli::col_blue (paste0 ("   containing ",
-                              "{.cluster_size {cluster_sizes}} function{?s},",
-                              " and ", num_isolated, " isolated functions")))
+
+    txt <- paste0 ("The ", attr (g, "pkg_name"), " package has ", nrow
+                   (exports), " exported functions, and ", nrow (non_exports), "
+                   non-exported funtions. The exported functions are ",
+                   "structured into the following ", num_clusters, 
+                   " primary clusters containing ",
+                   "{.cluster_size {cluster_sizes}} function{?s}.")
+
+    cli::cli_text (cli::col_blue (txt))
 
     for (i in seq (clusters))
     {
@@ -61,8 +53,11 @@ pg_report <- function (g)
     }
     cli::cli_text ("")
 
-    cli::cli_text ("The isolated functions are ",
-                   cli::col_blue ("{.isolated {isolated}}"))
+    if (num_isolated > 0)
+    {
+        cli::cli_text ("There are also ", num_isolated, " isolated functions: ",
+                       cli::col_blue ("{.isolated {isolated}}"))
+    }
 }
 
 pkg_name <- function (pkg_dir)
