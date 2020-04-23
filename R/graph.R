@@ -10,6 +10,7 @@
 #' @export
 pg_graph <- function (pkg_dir, plot = TRUE) {
     pkgmap <- pkgapi::map_package (pkg_dir)
+
     # suppress no visible binding notes:
     from <- to <- NULL
     edges <- pkgmap$calls %>%
@@ -31,7 +32,12 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
     edges$to <- gsub (paste0 ("^", pkgmap$name, "::"), "", edges$to)
 
     nodes <- nodes [nodes$name != "", ]
-    nodes$label <- NULL
+
+    # attach file start and end points to nodes
+    index <- match (nodes$name, pkgmap$defs$name)
+    nodes$file <- pkgmap$defs$file [index]
+    nodes$line1 <- pkgmap$defs$line1 [index]
+    nodes$line2 <- pkgmap$defs$line2 [index]
 
     cl <- igraph::graph_from_data_frame (edges, directed = FALSE) %>%
         igraph::clusters ()
