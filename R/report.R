@@ -61,13 +61,14 @@ cli_out <- function (pkgstats)
     message (cli::rule (line = 2, left = pkgstats$pkgname, col = "green"))
     cli::cli_text ("")
 
-    txt <- paste0 ("The ", pkgstats$pkg_name, " package has ",
+    cs <- paste0 (pkgstats$cluster_sizes)
+    txt <- paste0 ("The ", pkgstats$pkgname, " package has ",
                    nrow (pkgstats$exports), " exported functions, and ",
                    nrow (pkgstats$non_exports), "
                    non-exported funtions. The exported functions are ",
                    "structured into the following ",
                    "{pkgstats$num_clusters} primary cluster{?s} containing ",
-                   "{pkgstats$cluster_sizes} function{?s}.")
+                   "{.cs {cs}} function{?s}")
 
     cli::cli_text (cli::col_blue (txt))
 
