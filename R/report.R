@@ -47,8 +47,7 @@ get_pkg_stats <- function (g)
                                  i [order (i$centrality, decreasing = TRUE), ])
     pkgstats$cluster_sizes <- vapply (pkgstats$clusters,
                                       function (i) nrow (i),
-                                      integer (1)) %>%
-        as.character () # cli_text processing of plurals has to be char
+                                      integer (1), USE.NAMES = FALSE)
 
     pkgstats$num_clusters <- length (pkgstats$clusters)
     pkgstats$num_isolated <- length (pkgstats$isolated)
@@ -62,15 +61,13 @@ cli_out <- function (pkgstats)
     message (cli::rule (line = 2, left = pkgstats$pkgname, col = "green"))
     cli::cli_text ("")
 
-    cluster_sizes <- pkgstats$cluster_sizes
     txt <- paste0 ("The ", pkgstats$pkg_name, " package has ",
                    nrow (pkgstats$exports), " exported functions, and ",
                    nrow (pkgstats$non_exports), "
                    non-exported funtions. The exported functions are ",
                    "structured into the following ",
-                   pkgstats$num_clusters, 
-                   " primary clusters containing ",
-                   "{.cluster_size {cluster_sizes}} function{?s}.")
+                   "{pkgstats$num_clusters} primary cluster{?s} containing ",
+                   "{pkgstats$cluster_sizes} function{?s}.")
 
     cli::cli_text (cli::col_blue (txt))
 
@@ -87,10 +84,10 @@ cli_out <- function (pkgstats)
 
     if (pkgstats$num_isolated > 0)
     {
-        isolated <- pkgstats$isolated
-        cli::cli_text ("There are also ", pkgstats$num_isolated,
-                       " isolated functions: ",
-                   cli::col_blue ("{.isolated {isolated}}"))
+        nmtxt <- ifelse (pkgstats$num_isolated > 1, "are", "is")
+        cli::cli_text ("There ", nmtxt, " also ",
+                       "{pkgstats$num_isolated} isolated function{?s}:")
+        cli::cli_ol (cli::col_blue (pkgstats$isolated))
     }
 }
 
