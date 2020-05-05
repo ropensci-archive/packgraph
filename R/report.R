@@ -96,15 +96,22 @@ md_out <- function (g, pkgstats)
 {
     out <- c (paste0 ("## ", pkgstats$pkgname), "")
 
-    cluster_sizes <- pkgstats$cluster_sizes
+    list_collapse <- function (x) {
+        if (length (x) > 1)
+            x <- paste0 (paste0 (x [-length (x)], collapse = ", "), " and ", x [length (x)])
+        return (x)
+    }
+
+    cs <- paste0 (pkgstats$cluster_sizes)
     out <- c (out, paste0 ("The ", pkgstats$pkg_name, " package has ",
                            nrow (pkgstats$exports), " exported functions, and ",
                            nrow (pkgstats$non_exports), "
                            non-exported funtions. The exported functions are ",
                            "structured into the following ",
-                           pkgstats$num_clusters, 
-                           " primary clusters containing ",
-                           "{.cluster_size {cluster_sizes}} function{?s}."),
+                           pkgstats$num_clusters, "primary cluster",
+                           ifelse (pkgstats$num_clusters > 1, "s", ""),
+                           " containing ", list_collapse (cs),
+                           " function", ifelse (length (cs) > 1, "s", "")),
               "")
 
     for (i in seq (pkgstats$clusters))
@@ -122,7 +129,7 @@ md_out <- function (g, pkgstats)
         isolated <- pkgstats$isolated
         out <- c (out, paste0 ("There are also ", pkgstats$num_isolated,
                                " isolated functions:"),
-                  glue::glue ("{isolated}"))
+                  isolated)
     }
 
     return (out)
