@@ -28,6 +28,8 @@ pkg_name <- function (pkg_dir)
 
 get_pkg_stats <- function (g)
 {
+    g$nodes$loc <- g$nodes$line2 - g$nodes$line1 + 1
+
     pkgstats <- list (pkgname = attr (g, "pkg_name"))
     pkgstats$non_exports <- g$nodes [!g$nodes$export, ]
     pkgstats$exports <- g$nodes [g$nodes$export, ]
@@ -77,6 +79,7 @@ cli_out <- function (pkgstats)
         ci <- data.frame (cluster = i,
                           n = seq (nrow (pkgstats$clusters [[i]])),
                           name = pkgstats$clusters [[i]]$name,
+                          loc = pkgstats$clusters [[i]]$loc,
                           centrality = pkgstats$clusters [[i]]$centrality,
                           row.names = NULL)
         print (knitr::kable (ci))
@@ -88,7 +91,13 @@ cli_out <- function (pkgstats)
         nmtxt <- ifelse (pkgstats$num_isolated > 1, "are", "is")
         cli::cli_text ("There ", nmtxt, " also ",
                        "{pkgstats$num_isolated} isolated function{?s}:")
-        cli::cli_ol (cli::col_blue (pkgstats$isolated))
+        allfns <- rbind (pkgstats$exports, pkgstats$non_exports)
+        iso_fns <- data.frame (n = seq (pkgstats$num_isolated),
+                               name = pkgstats$isolated,
+                               loc = allfns$loc [match (pkgstats$isolated,
+                                                        allfns$name)],
+                               row.names = NULL)
+        print (knitr::kable (iso_fns))
     }
 }
 
@@ -127,9 +136,17 @@ md_out <- function (g, pkgstats)
     if (pkgstats$num_isolated > 0)
     {
         isolated <- pkgstats$isolated
-        out <- c (out, paste0 ("There are also ", pkgstats$num_isolated,
-                               " isolated functions:"),
-                  isolated)
+        nmtxt <- ifelse (pkgstats$num_isolated > 1, "are", "is")
+        out <- c (out, paste0 ("There ", nmtxt, " also ", pkgstats$num_isolated,
+                               " isolated function",
+                               ifelse (pkgstats$num_isolated > 1, "s", ""), ":"))
+        allfns <- rbind (pkgstats$exports, pkgstats$non_exports)
+        iso_fns <- data.frame (n = seq (pkgstats$num_isolated),
+                               name = pkgstats$isolated,
+                               loc = allfns$loc [match (pkgstats$isolated,
+                                                        allfns$name)],
+                               row.names = NULL)
+        out <- c (out, knitr::kable (iso_fns, format = "markdown"))
     }
 
     return (out)
