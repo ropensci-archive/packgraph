@@ -60,6 +60,9 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
         nodes$value <- nodes$label <- nodes$id <- NULL
     }
 
+    docs <- doc_lines (pkg_dir, nodes)
+    nodes$doc_lines <- docs$lines [match (docs$name, nodes$name)]
+
     res <- list (nodes = nodes, edges = edges)
     attr (res, "pkg_name") <- pkg_name (pkg_dir)
 
@@ -73,4 +76,34 @@ node_centrality <- function (nodes, edges)
                                  value = igraph::edge.attributes (ig)$n)
     btw <- igraph::betweenness (ig)
     btw [match (names (btw), nodes$name)]
+}
+
+# count documentation lines preceding all fn defintions
+doc_lines_one_file <- function (pkg_dir, nodes, filename) {
+    nds <- nodes [nodes$file == filename, ]
+    nds <- nds [order (nds$line1), ]
+
+    x <- readLines (file.path (pkg_dir, filename))
+    x <- split (x, findInterval (seq (length (x)), nds$line2 + 1)) [seq (nrow (nds))]
+
+    #index <- which (!nodes$export)
+    #x <- x [index]
+
+    nlines <- vapply (x, function (i) {
+                          i <- i [which (!grepl ("nocov st", i))]
+                          ftemp <- file.path (tempdir (), "junk.R")
+                          writeLines (i, ftemp)
+                          p <- getParseData (parse (file = ftemp))
+                          return (which (p$token != "COMMENT") [1] - 1)
+                                 }, numeric (1))
+
+    data.frame (name = nds$name,
+                lines = nlines,
+                stringsAsFactors = FALSE)
+}
+
+doc_lines <- function (pkg_dir, nodes) {
+    files <- unique (nodes$file)
+    res <- lapply (files, function (i) doc_lines_one_file (pkg_dir, nodes, i))
+    do.call (rbind, res)
 }
