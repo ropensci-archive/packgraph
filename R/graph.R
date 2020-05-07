@@ -67,6 +67,7 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
     nodes$doc_lines <- docs$doclines [index]
     nodes$cmt_lines <- docs$cmtlines [index]
     nodes$todos <- docs$todos [index]
+    nodes$todo_lines <- docs$todo_lines [index]
 
     # Detailed summaries of fn docs via analyses of /man entries:
     nodes <- get_doc_metrics (pkg_dir, nodes)
@@ -97,7 +98,7 @@ doc_lines_one_file <- function (pkg_dir, nodes, filename) {
     #index <- which (!nodes$export)
     #x <- x [index]
 
-    nlines <- vapply (x, function (i) {
+    nlines <- lapply (x, function (i) {
                           i <- i [which (!grepl ("nocov st", i))]
                           ftemp <- file.path (tempdir (), "junk.R")
                           writeLines (i, ftemp)
@@ -106,15 +107,25 @@ doc_lines_one_file <- function (pkg_dir, nodes, filename) {
                           index <- which (p$token [(doclines + 1):nrow (p)] ==
                                           "COMMENT")
                           cmtlines <- length (index)
-                          todos <- length (grep ("to*do", p$text [index], ignore.case = TRUE))
-                          return (c (doclines, cmtlines, todos))
-                                 }, numeric (3))
+                          index2 <- grep ("to*do", p$text [index],
+                                          ignore.case = TRUE)
+                          todos <- length (index2)
+                          res <- c (doclines, cmtlines, todos)
+                          todo_line_nums <- NA_integer_
+                          if (length (index2) > 0)
+                              todo_line_nums <- p$line1 [index] [index2]
+                          list (res, todo_line_nums)    })
+    todo_lines <- lapply (nlines, function (i) i [[2]])
+    nlines <- do.call (rbind, lapply (nlines, function (i) i [[1]]))
 
-    data.frame (name = nds$name,
-                doclines = nlines [1, ],
-                cmtlines = nlines [2, ],
-                todos = nlines [3, ],
-                stringsAsFactors = FALSE)
+    res <- data.frame (name = nds$name,
+                       doclines = nlines [, 1],
+                       cmtlines = nlines [, 2],
+                       todos = nlines [, 3],
+                       stringsAsFactors = FALSE)
+    res$todo_lines <- todo_lines # list column
+
+    return (res)
 }
 
 doc_lines <- function (pkg_dir, nodes) {
