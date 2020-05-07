@@ -60,8 +60,13 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
         nodes$value <- nodes$label <- nodes$id <- NULL
     }
 
+    # simple numbers of doc/comments lines for each fn (exported +
+    # non-exported):
     docs <- doc_lines (pkg_dir, nodes)
     nodes$doc_lines <- docs$lines [match (docs$name, nodes$name)]
+
+    # Detailed summaries of fn docs via analyses of /man entries:
+    nodes <- get_doc_metrics (pkg_dir, nodes)
 
     res <- list (nodes = nodes, edges = edges)
     attr (res, "pkg_name") <- pkg_name (pkg_dir)
@@ -106,4 +111,32 @@ doc_lines <- function (pkg_dir, nodes) {
     files <- unique (nodes$file)
     res <- lapply (files, function (i) doc_lines_one_file (pkg_dir, nodes, i))
     do.call (rbind, res)
+}
+
+get_doc_metrics <- function (pkg_dir, nodes) {
+    d <- pg_documentation (pkg_dir)
+    d <- d [which (names (d) %in% nodes$name)]
+
+    has_usage <- vapply (d, function (i) "usage" %in% names (i), logical (1))
+    has_example <- vapply (d, function (i) any (grepl ("^example", names (i))), logical (1))
+    nparams <- vapply (d, function (i) {
+                           ret <- 0L
+                           if ("arguments" %in% names (i))
+                               ret <- length (grep ("\\\\item", i$arguments))
+                           return (ret) }, integer (1))
+    nwords <- vapply (d, function (i) {
+                          index <- grep ("description|^note", names (i))
+                          stringr::str_count (paste (i [index], collapse = " "))
+                           }, integer (1))
+
+    index <- match (names (d), nodes$name)
+    nodes$has_usage <- nodes$has_example <- FALSE
+    nodes$nparams <- nodes$n_doc_words <- NA_integer_
+
+    nodes$has_usage [index] <- has_usage
+    nodes$has_example [index] <- has_example
+    nodes$nparams [index] <- nparams
+    nodes$n_doc_words [index] <- nwords
+
+    return (nodes)
 }

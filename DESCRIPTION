@@ -15,6 +15,7 @@ Imports:
     igraph,
     magrittr,
     pkgapi,
+    stringr,
     tibble,
     visNetwork
 Suggests: 
