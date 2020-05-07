@@ -82,6 +82,12 @@ cli_out <- function (pkgstats)
         cli::cli_text (res$txt)
         print (knitr::kable (res$iso_fns))
     }
+    cli::cli_text ("")
+
+    dl <- doclines_non_exp (pkgstats)
+    #cli::cli_text (dl$txt)
+    message (dl$txt)
+    print (knitr::kable (dl$vals))
 }
 
 md_out <- function (g, pkgstats)
@@ -98,6 +104,11 @@ md_out <- function (g, pkgstats)
         res <- isolated_out (pkgstats, md = TRUE)
         out <- c (out, res$txt, knitr::kable (res$iso_fns, format = "markdown"))
     }
+
+    out <- c (out, "")
+
+    dl <- doclines_non_exp (pkgstats, md = TRUE)
+    out <- c (out, dl$txt, knitr::kable (dl$vals, format = "markdown"))
 
     return (out)
 }
@@ -126,6 +137,10 @@ clusters_list <- function (pkgstats, md = FALSE)
         out [[i]] <- data.frame (cluster = i,
                                  n = seq (nrow (pkgstats$clusters [[i]])),
                                  name = pkgstats$clusters [[i]]$name,
+                                 num_params = pkgstats$clusters [[i]]$nparams,
+                                 num_doc_words = pkgstats$clusters [[i]]$n_doc_words,
+                                 num_doc_lines = pkgstats$clusters [[i]]$doc_lines,
+                                 num_example_lines = pkgstats$clusters [[i]]$n_example_lines,
                                  centrality = pkgstats$clusters [[i]]$centrality,
                                  row.names = NULL)
     }
@@ -147,4 +162,23 @@ isolated_out <- function (pkgstats, md = FALSE)
                                                     allfns$name)],
                            row.names = NULL)
     list (txt = out_txt, iso_fns = iso_fns)
+}
+
+doclines_non_exp <- function (pkgstats, md = FALSE)
+{
+    txt <- "Documentation of non-exported functions"
+    if (md)
+        txt <- c (paste0 ("### ", txt, ":"), "")
+    else
+        txt <- cli::rule (line = 1, left = txt)
+
+    vals <- data.frame (value = c ("mean", "median"),
+                        doclines = c (round (mean (pkgstats$non_exports$doc_lines),
+                                             digits = 1),
+                                      median (pkgstats$non_exports$doc_lines)),
+                        cmtlines = c (round (mean (pkgstats$non_exports$cmt_lines),
+                                             digits = 1),
+                                      median (pkgstats$non_exports$cmt_lines)))
+
+    list (txt = txt, vals = vals)
 }
