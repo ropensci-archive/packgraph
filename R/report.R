@@ -88,6 +88,13 @@ cli_out <- function (pkgstats)
     #cli::cli_text (dl$txt)
     message (dl$txt)
     print (knitr::kable (dl$vals))
+
+    out <- central_node_docs (pkgstats)
+    if (length (out) > 1)
+    {
+        cli::cli_text ("")
+        cli::cli_text (out)
+    }
 }
 
 md_out <- function (g, pkgstats)
@@ -109,6 +116,8 @@ md_out <- function (g, pkgstats)
 
     dl <- doclines_non_exp (pkgstats, md = TRUE)
     out <- c (out, dl$txt, knitr::kable (dl$vals, format = "markdown"))
+
+    out <- c (out, central_node_docs (pkgstats))
 
     return (out)
 }
@@ -181,4 +190,28 @@ doclines_non_exp <- function (pkgstats, md = FALSE)
                                       median (pkgstats$non_exports$cmt_lines)))
 
     list (txt = txt, vals = vals)
+}
+
+central_node_docs <- function (pkgstats)
+{
+    n <- pkgstats$exports [which (pkgstats$exports$centrality > 0), ]
+    out <- ""
+
+    if (nrow (n) > 4) # only analyse if > 4 fns have non-zero centrality measures
+    {
+        r2_doc_all <- cor (n$centrality, n$doc_lines)
+        r2_ex <- cor (n$centrality, n$n_example_lines)
+        r2_doc_no_ex <- cor (n$centrality, n$doc_lines - n$n_example_lines)
+
+        if (r2_doc_all < 0)
+            out <- c (out, paste0 ("More central functions should be ",
+                                   "better documented than less central ",
+                                   "functions, yet this is not the case here"))
+        if (r2_ex < 0)
+            out <- c (out, paste0 ("More central functions should have ",
+                                   "more extensive examples than less ",
+                                   "central functions, yet this is not the case here"))
+    }
+
+    return (out)
 }
