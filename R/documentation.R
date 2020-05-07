@@ -6,7 +6,7 @@
 #' @return A list with one item for each package function, each of which
 #'         contains a list of all of the variously delinated items defining the
 #'         function documentation.
-#' @export
+#' @noRd
 pg_documentation <- function (pkg_dir) {
     flist <- list.files (file.path (pkg_dir, "man"), full.names = TRUE)
     flist <- flist [which (grepl ("\\.Rd$", flist))]
