@@ -57,47 +57,30 @@ get_pkg_stats <- function (g)
     return (pkgstats)
 }
 
+list_collapse <- function (x) {
+    if (length (x) > 1)
+        x <- paste0 (paste0 (x [-length (x)], collapse = ", "), " and ", x [length (x)])
+    return (x)
+}
 
+
+# screen output via cli
 cli_out <- function (pkgstats)
 {
     message (cli::rule (line = 2, left = pkgstats$pkgname, col = "green"))
     cli::cli_text ("")
 
-    cs <- paste0 (pkgstats$cluster_sizes)
-    txt <- paste0 ("The ", pkgstats$pkgname, " package has ",
-                   nrow (pkgstats$exports), " exported functions, and ",
-                   nrow (pkgstats$non_exports), "
-                   non-exported funtions. The exported functions are ",
-                   "structured into the following ",
-                   "{pkgstats$num_clusters} primary cluster{?s} containing ",
-                   "{.cs {cs}} function{?s}")
+    cli::cli_text (cli::col_blue (clusters_out (pkgstats, md = FALSE)))
 
-    cli::cli_text (cli::col_blue (txt))
-
-    for (i in seq (pkgstats$clusters))
-    {
-        ci <- data.frame (cluster = i,
-                          n = seq (nrow (pkgstats$clusters [[i]])),
-                          name = pkgstats$clusters [[i]]$name,
-                          loc = pkgstats$clusters [[i]]$loc,
-                          centrality = pkgstats$clusters [[i]]$centrality,
-                          row.names = NULL)
-        print (knitr::kable (ci))
-    }
+    cl <- lapply (clusters_list (pkgstats, md = FALSE), function (i)
+                  print (knitr::kable (i)))
     cli::cli_text ("")
 
     if (pkgstats$num_isolated > 0)
     {
-        nmtxt <- ifelse (pkgstats$num_isolated > 1, "are", "is")
-        cli::cli_text ("There ", nmtxt, " also ",
-                       "{pkgstats$num_isolated} isolated function{?s}:")
-        allfns <- rbind (pkgstats$exports, pkgstats$non_exports)
-        iso_fns <- data.frame (n = seq (pkgstats$num_isolated),
-                               name = pkgstats$isolated,
-                               loc = allfns$loc [match (pkgstats$isolated,
-                                                        allfns$name)],
-                               row.names = NULL)
-        print (knitr::kable (iso_fns))
+        res <- isolated_out (pkgstats, md = FALSE)
+        cli::cli_text (res$txt)
+        print (knitr::kable (res$iso_fns))
     }
 }
 
@@ -105,49 +88,63 @@ md_out <- function (g, pkgstats)
 {
     out <- c (paste0 ("## ", pkgstats$pkgname), "")
 
-    list_collapse <- function (x) {
-        if (length (x) > 1)
-            x <- paste0 (paste0 (x [-length (x)], collapse = ", "), " and ", x [length (x)])
-        return (x)
-    }
+    out <- c (out, clusters_out (pkgstats, md = TRUE), "")
 
-    cs <- paste0 (pkgstats$cluster_sizes)
-    out <- c (out, paste0 ("The ", pkgstats$pkg_name, " package has ",
-                           nrow (pkgstats$exports), " exported functions, and ",
-                           nrow (pkgstats$non_exports), "
-                           non-exported funtions. The exported functions are ",
-                           "structured into the following ",
-                           pkgstats$num_clusters, "primary cluster",
-                           ifelse (pkgstats$num_clusters > 1, "s", ""),
-                           " containing ", list_collapse (cs),
-                           " function", ifelse (length (cs) > 1, "s", "")),
-              "")
-
-    for (i in seq (pkgstats$clusters))
-    {
-        ci <- data.frame (cluster = i,
-                          n = seq (nrow (pkgstats$clusters [[i]])),
-                          name = pkgstats$clusters [[i]]$name,
-                          centrality = pkgstats$clusters [[i]]$centrality,
-                          row.names = NULL)
-        out <- c (out, knitr::kable (ci, format = "markdown"), "")
-    }
+    for (i in clusters_list (pkgstats, md = TRUE))
+        out <- c (out, knitr::kable (i, format = "markdown"), "")
 
     if (pkgstats$num_isolated > 0)
     {
-        isolated <- pkgstats$isolated
-        nmtxt <- ifelse (pkgstats$num_isolated > 1, "are", "is")
-        out <- c (out, paste0 ("There ", nmtxt, " also ", pkgstats$num_isolated,
-                               " isolated function",
-                               ifelse (pkgstats$num_isolated > 1, "s", ""), ":"))
-        allfns <- rbind (pkgstats$exports, pkgstats$non_exports)
-        iso_fns <- data.frame (n = seq (pkgstats$num_isolated),
-                               name = pkgstats$isolated,
-                               loc = allfns$loc [match (pkgstats$isolated,
-                                                        allfns$name)],
-                               row.names = NULL)
-        out <- c (out, knitr::kable (iso_fns, format = "markdown"))
+        res <- isolated_out (pkgstats, md = TRUE)
+        out <- c (out, res$txt, knitr::kable (res$iso_fns, format = "markdown"))
     }
 
     return (out)
+}
+
+# Summary output of numbers and sizes of clusters
+clusters_out <- function (pkgstats, md = FALSE)
+{
+    cs <- paste0 (pkgstats$cluster_sizes)
+    paste0 ("The ", pkgstats$pkg_name, " package has ",
+            nrow (pkgstats$exports), " exported functions, and ",
+            nrow (pkgstats$non_exports),
+            " non-exported funtions. The exported functions are ",
+            "structured into the following ",
+            pkgstats$num_clusters, " primary cluster",
+            ifelse (pkgstats$num_clusters > 1, "s", ""),
+            " containing ", list_collapse (cs),
+            " function", ifelse (length (cs) > 1, "s", ""))
+}
+
+# Summary output of cluster memberships
+clusters_list <- function (pkgstats, md = FALSE)
+{
+    out <- list ()
+    for (i in seq (pkgstats$clusters))
+    {
+        out [[i]] <- data.frame (cluster = i,
+                                 n = seq (nrow (pkgstats$clusters [[i]])),
+                                 name = pkgstats$clusters [[i]]$name,
+                                 centrality = pkgstats$clusters [[i]]$centrality,
+                                 row.names = NULL)
+    }
+
+    return (out)
+}
+
+# Summary output of isolated functions
+isolated_out <- function (pkgstats, md = FALSE)
+{
+    nmtxt <- ifelse (pkgstats$num_isolated > 1, "are", "is")
+    out_txt <- paste0 ("There ", nmtxt, " also ", pkgstats$num_isolated,
+                       " isolated function",
+                       ifelse (pkgstats$num_isolated > 1, "s", ""), ":")
+    allfns <- rbind (pkgstats$exports, pkgstats$non_exports)
+    iso_fns <- data.frame (n = seq (pkgstats$num_isolated),
+                           name = pkgstats$isolated,
+                           loc = allfns$loc [match (pkgstats$isolated,
+                                                    allfns$name)],
+                           row.names = NULL)
+    list (txt = out_txt, iso_fns = iso_fns)
 }
