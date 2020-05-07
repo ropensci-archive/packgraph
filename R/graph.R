@@ -66,6 +66,7 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
     index <- match (docs$name, nodes$name)
     nodes$doc_lines <- docs$doclines [index]
     nodes$cmt_lines <- docs$cmtlines [index]
+    nodes$todos <- docs$todos [index]
 
     # Detailed summaries of fn docs via analyses of /man entries:
     nodes <- get_doc_metrics (pkg_dir, nodes)
@@ -102,13 +103,17 @@ doc_lines_one_file <- function (pkg_dir, nodes, filename) {
                           writeLines (i, ftemp)
                           p <- getParseData (parse (file = ftemp))
                           doclines <- which (p$token != "COMMENT") [1] - 1
-                          cmtlines <- length (which (p$token [(doclines + 1):nrow (p)] == "COMMENT"))
-                          return (c (doclines, cmtlines))
-                                 }, numeric (2))
+                          index <- which (p$token [(doclines + 1):nrow (p)] ==
+                                          "COMMENT")
+                          cmtlines <- length (index)
+                          todos <- length (grep ("to*do", p$text [index], ignore.case = TRUE))
+                          return (c (doclines, cmtlines, todos))
+                                 }, numeric (3))
 
     data.frame (name = nds$name,
                 doclines = nlines [1, ],
                 cmtlines = nlines [2, ],
+                todos = nlines [3, ],
                 stringsAsFactors = FALSE)
 }
 
