@@ -63,7 +63,9 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
     # simple numbers of doc/comments lines for each fn (exported +
     # non-exported):
     docs <- doc_lines (pkg_dir, nodes)
-    nodes$doc_lines <- docs$lines [match (docs$name, nodes$name)]
+    index <- match (docs$name, nodes$name)
+    nodes$doc_lines <- docs$doclines [index]
+    nodes$cmt_lines <- docs$cmtlines [index]
 
     # Detailed summaries of fn docs via analyses of /man entries:
     nodes <- get_doc_metrics (pkg_dir, nodes)
@@ -99,11 +101,14 @@ doc_lines_one_file <- function (pkg_dir, nodes, filename) {
                           ftemp <- file.path (tempdir (), "junk.R")
                           writeLines (i, ftemp)
                           p <- getParseData (parse (file = ftemp))
-                          return (which (p$token != "COMMENT") [1] - 1)
-                                 }, numeric (1))
+                          doclines <- which (p$token != "COMMENT") [1] - 1
+                          cmtlines <- length (which (p$token [(doclines + 1):nrow (p)] == "COMMENT"))
+                          return (c (doclines, cmtlines))
+                                 }, numeric (2))
 
     data.frame (name = nds$name,
-                lines = nlines,
+                doclines = nlines [1, ],
+                cmtlines = nlines [2, ],
                 stringsAsFactors = FALSE)
 }
 
@@ -118,7 +123,12 @@ get_doc_metrics <- function (pkg_dir, nodes) {
     d <- d [which (names (d) %in% nodes$name)]
 
     has_usage <- vapply (d, function (i) "usage" %in% names (i), logical (1))
-    has_example <- vapply (d, function (i) any (grepl ("^example", names (i))), logical (1))
+    example_lines <- vapply (d, function (i) {
+                                 index <- grep ("^example", names (i))
+                                 res <- unname (do.call (c, i [index]))
+                                 length (res)
+                }, numeric (1))
+
     nparams <- vapply (d, function (i) {
                            ret <- 0L
                            if ("arguments" %in% names (i))
@@ -130,13 +140,13 @@ get_doc_metrics <- function (pkg_dir, nodes) {
                            }, integer (1))
 
     index <- match (names (d), nodes$name)
-    nodes$has_usage <- nodes$has_example <- FALSE
-    nodes$nparams <- nodes$n_doc_words <- NA_integer_
+    nodes$nparams <- nodes$n_doc_words <- nodes$n_example_lines <- NA_integer_
+    nodes$has_usage <- FALSE
 
-    nodes$has_usage [index] <- has_usage
-    nodes$has_example [index] <- has_example
     nodes$nparams [index] <- nparams
     nodes$n_doc_words [index] <- nwords
+    nodes$n_example_lines [index] <- example_lines
+    nodes$has_usage [index] <- has_usage
 
     return (nodes)
 }
