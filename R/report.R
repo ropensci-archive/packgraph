@@ -184,10 +184,10 @@ doclines_non_exp <- function (pkgstats, md = FALSE)
     vals <- data.frame (value = c ("mean", "median"),
                         doclines = c (round (mean (pkgstats$non_exports$doc_lines),
                                              digits = 1),
-                                      median (pkgstats$non_exports$doc_lines)),
+                                      stats::median (pkgstats$non_exports$doc_lines)),
                         cmtlines = c (round (mean (pkgstats$non_exports$cmt_lines),
                                              digits = 1),
-                                      median (pkgstats$non_exports$cmt_lines)))
+                                      stats::median (pkgstats$non_exports$cmt_lines)))
 
     list (txt = txt, vals = vals)
 }
@@ -199,9 +199,9 @@ central_node_docs <- function (pkgstats)
 
     if (nrow (n) > 4) # only analyse if > 4 fns have non-zero centrality measures
     {
-        r2_doc_all <- cor (n$centrality, n$doc_lines)
-        r2_ex <- cor (n$centrality, n$n_example_lines)
-        r2_doc_no_ex <- cor (n$centrality, n$doc_lines - n$n_example_lines)
+        r2_doc_all <- stats::cor (n$centrality, n$doc_lines)
+        r2_ex <- stats::cor (n$centrality, n$n_example_lines)
+        r2_doc_no_ex <- stats::cor (n$centrality, n$doc_lines - n$n_example_lines)
 
         if (r2_doc_all < 0)
             out <- c (out, paste0 ("More central functions should be ",
