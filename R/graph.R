@@ -9,8 +9,6 @@
 #' various exported and non-exported functions of a package.
 #' @export
 pg_graph <- function (pkg_dir, plot = TRUE) {
-    message (paste0 (pkg_dir, " has ",
-                     length (list.files (pkg_dir)), " files"))
     pkgmap <- pkgapi::map_package (pkg_dir)
 
     # suppress no visible binding notes:
