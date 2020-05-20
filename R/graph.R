@@ -102,7 +102,8 @@ doc_lines_one_file <- function (pkg_dir, nodes, filename) {
                           i <- i [which (!grepl ("nocov st", i))]
                           ftemp <- file.path (tempdir (), "junk.R")
                           writeLines (i, ftemp)
-                          p <- utils::getParseData (parse (file = ftemp))
+                          p <- parse (file = ftemp, keep.source = TRUE)
+                          p <- utils::getParseData (p)
                           doclines <- which (p$token != "COMMENT") [1] - 1
                           index <- NULL
                           if (!is.na (doclines))
