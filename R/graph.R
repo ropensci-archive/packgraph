@@ -9,6 +9,8 @@
 #' various exported and non-exported functions of a package.
 #' @export
 pg_graph <- function (pkg_dir, plot = TRUE) {
+    message (paste0 (pkg_dir, " has ",
+                     length (list.files (pkg_dir)), " files"))
     pkgmap <- pkgapi::map_package (pkg_dir)
 
     # suppress no visible binding notes:
@@ -104,8 +106,10 @@ doc_lines_one_file <- function (pkg_dir, nodes, filename) {
                           writeLines (i, ftemp)
                           p <- utils::getParseData (parse (file = ftemp))
                           doclines <- which (p$token != "COMMENT") [1] - 1
-                          index <- which (p$token [(doclines + 1):nrow (p)] ==
-                                          "COMMENT")
+                          index <- NULL
+                          if (!is.na (doclines))
+                              index <- which (p$token [(doclines + 1):nrow (p)] ==
+                                              "COMMENT")
                           cmtlines <- length (index)
                           index2 <- grep ("to*do", p$text [index],
                                           ignore.case = TRUE)
