@@ -50,5 +50,9 @@ edges <- tibble::tibble (from = from, to = to, n = n)
 list (nodes = nodes, edges = edges)
 ```
 
+# prior art
+
+The [`collaboratoR` package](https://github.com/bupaverse/collaborateR) as
+presented at [eRum 2020](https://milano-r.github.io/erum2020program/regular-talks.html#using-process-mining-principles-to-extract-a-collaboration-graph-from-a-version-control-system-log).
 
 

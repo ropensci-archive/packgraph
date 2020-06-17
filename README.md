@@ -67,3 +67,9 @@ g
     ##  9 branches                     lookup_repository     1
     ## 10 bundle_r_package             clone                 1
     ## # … with 192 more rows
+
+# prior art
+
+The [`collaboratoR` package](https://github.com/bupaverse/collaborateR)
+as presented at
+[eRum 2020](https://milano-r.github.io/erum2020program/regular-talks.html#using-process-mining-principles-to-extract-a-collaboration-graph-from-a-version-control-system-log).
