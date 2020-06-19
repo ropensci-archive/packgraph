@@ -16,10 +16,8 @@ package](https://github.com/r-lib/pkgapi), which is not on CRAN and must
 first be installed with
 
 ``` r
-source("https://install-github.me/r-lib/pkgapi")
+remotes::install_github ("r-lib/pkgapi")
 ```
-
-(or `remotes::install_github()` will also work).
 
 Currently contains a single function, `pg_graph()`, which returns all
 exported and non-exported functions from a package (as `nodes`), and
@@ -70,6 +68,11 @@ g
 
 # prior art
 
-The [`collaboratoR` package](https://github.com/bupaverse/collaborateR)
-as presented at
-[eRum 2020](https://milano-r.github.io/erum2020program/regular-talks.html#using-process-mining-principles-to-extract-a-collaboration-graph-from-a-version-control-system-log).
+  - Much of the functionality is primarily built upon the [`pkgapi`
+    package](https://github.com/r-lib/pkgapi).
+  - The [`collaboratoR`
+    package](https://github.com/bupaverse/collaborateR) as presented at
+    [eRum
+    2020](https://milano-r.github.io/erum2020program/regular-talks.html#using-process-mining-principles-to-extract-a-collaboration-graph-from-a-version-control-system-log)
+    extracts graphs of *collaborators* from a version control history
+    rather than graphs of functions.
