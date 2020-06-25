@@ -1,6 +1,6 @@
 Package: packgraph
 Title: Examine and Analyse Function Call Graphs of R Packages
-Version: 0.0.0.001
+Version: 0.0.0.002
 Authors@R: c(
     person("Mark", "Padgham", email="mark.padgham@email.com", role=c("aut", "cre")))
 Description: Examine and analyse function call graphs of R packages.

@@ -126,6 +126,10 @@ md_out <- function (g, pkgstats)
 clusters_out <- function (pkgstats, md = FALSE)
 {
     cs <- paste0 (pkgstats$cluster_sizes)
+    # if multiple clusters, or single cluster and multiple functions:
+    cluster_fn_fmt <- ifelse ((length (pkgstats$cluster_sizes) > 1 |
+                               (length (pkgstats$cluster_sizes) == 1 &
+                                pkgstats$cluster_sizes [1] > 1)), "s", "")
     paste0 ("The ", pkgstats$pkg_name, " package has ",
             nrow (pkgstats$exports), " exported functions, and ",
             nrow (pkgstats$non_exports),
@@ -134,7 +138,7 @@ clusters_out <- function (pkgstats, md = FALSE)
             pkgstats$num_clusters, " primary cluster",
             ifelse (pkgstats$num_clusters > 1, "s", ""),
             " containing ", list_collapse (cs),
-            " function", ifelse (length (cs) > 1, "s", ""))
+            " function", cluster_fn_fmt)
 }
 
 # Summary output of cluster memberships
