@@ -44,7 +44,7 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
     nodes$group <- cl$membership [match (nodes$name, names (cl$membership))] %>%
         as.integer ()
     index <- which (is.na (nodes$group))
-    nodes$group [index] <- max (nodes$group, na.rm = TRUE) + seq (index)
+    nodes$group [index] <- max (nodes$group, na.rm = TRUE) + seq (length (index))
 
     nodes$centrality <- node_centrality (nodes, edges)
 
