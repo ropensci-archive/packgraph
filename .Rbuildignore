@@ -9,3 +9,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.github$
+^\.pre-commit-config\.yaml$
+^codemeta\.json$
