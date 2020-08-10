@@ -70,6 +70,8 @@ g
 
   - Much of the functionality is primarily built upon the [`pkgapi`
     package](https://github.com/r-lib/pkgapi).
+  - The [`flow` package](https://github.com/moodymudskipper/flow)
+    produces flow diagrams of R functions.
   - The [`collaboratoR`
     package](https://github.com/bupaverse/collaborateR) as presented at
     [eRum

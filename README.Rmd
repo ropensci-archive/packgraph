@@ -53,10 +53,9 @@ list (nodes = nodes, edges = edges)
 
 - Much of the functionality is primarily built upon the [`pkgapi`
   package](https://github.com/r-lib/pkgapi).
+- The [`flow` package](https://github.com/moodymudskipper/flow) produces flow diagrams of R functions.
 - The [`collaboratoR` package](https://github.com/bupaverse/collaborateR) as
   presented at [eRum
   2020](https://milano-r.github.io/erum2020program/regular-talks.html#using-process-mining-principles-to-extract-a-collaboration-graph-from-a-version-control-system-log)
   extracts graphs of *collaborators* from a version control history rather than
   graphs of functions.
-
-

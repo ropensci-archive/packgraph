@@ -10,11 +10,10 @@
   "codeRepository": "https://github.com/mpadge/packgraph",
   "issueTracker": "https://github.com/mpadge/packgraph/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.0.004",
+  "version": "0.0.0.5",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
-    "version": "4.0.2",
     "url": "https://r-project.org"
   },
   "runtimePlatform": "R version 4.0.2 (2020-06-22)",
@@ -161,7 +160,7 @@
     }
   ],
   "readme": "https://github.com/mpadge/packgraph/blob/master/README.md",
-  "fileSize": "7.301KB",
+  "fileSize": "39.933KB",
   "contIntegration": "https://travis-ci.org/mpadge/packgraph",
   "developmentStatus": "https://www.repostatus.org/#concept"
 }
