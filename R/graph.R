@@ -46,6 +46,7 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
     index <- which (is.na (nodes$group))
     nodes$group [index] <- max (nodes$group, na.rm = TRUE) + seq (length (index))
 
+    edges <- edges [which (!(edges$from == "" | edges$to == "")), ]
     nodes$centrality <- node_centrality (nodes, edges)
 
     if (plot) {
