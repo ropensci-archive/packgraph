@@ -93,7 +93,7 @@ doc_lines_one_file <- function (pkg_dir, nodes, filename) {
     nds <- nodes [nodes$file == filename, ]
     nds <- nds [order (nds$line1), ]
 
-    x <- readLines (file.path (pkg_dir, filename))
+    x <- readLines (file.path (pkg_dir, filename), warn = FALSE)
     x <- split (x, findInterval (seq (length (x)), nds$line2 + 1)) [seq (nrow (nds))]
 
     #index <- which (!nodes$export)
