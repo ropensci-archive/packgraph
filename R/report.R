@@ -21,9 +21,8 @@ pg_report <- function (g)
 
 pkg_name <- function (pkg_dir)
 {
-    desc <- file.path (pkg_dir, "DESCRIPTION")
-    x <- readLines (desc)
-    strsplit (x [1], "Package: ") [[1]] [2]
+    desc <- readLines (file.path (pkg_dir, "DESCRIPTION"))
+    gsub ("Package:\\s?", "", desc [grep ("^Package\\:", desc)])
 }
 
 get_pkg_stats <- function (g)
