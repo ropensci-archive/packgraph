@@ -1,6 +1,6 @@
 Package: packgraph
 Title: Examine and Analyse Function Call Graphs of R Packages
-Version: 0.0.0.009
+Version: 0.0.0.010
 Authors@R: 
     person(given = "Mark",
            family = "Padgham",
@@ -32,4 +32,4 @@ Language: en-GB
 LazyData: true
 NeedsCompilation: yes
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

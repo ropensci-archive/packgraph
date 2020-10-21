@@ -6,7 +6,7 @@
 #' @param exported_only If `FALSE`, include statistics of internal
 #' (non-exported) functions, otherwise only summarise relationships between
 #' exported functions.
-#' @return Summary report on package strucutre
+#' @return Summary report on package structure
 #' @export
 pg_report <- function (g, exported_only = TRUE)
 {
@@ -50,7 +50,7 @@ get_pkg_stats <- function (g, exported_only = TRUE)
                                 "name",
                                 drop = TRUE]
 
-    # base-r way of gropuing and ordering
+    # base-r way of grouping and ordering
     pkgstats$clusters <- lapply (split (clusters, f = factor (clusters$group)),
                                  function (i)
                                  i [order (i$centrality, decreasing = TRUE), ])

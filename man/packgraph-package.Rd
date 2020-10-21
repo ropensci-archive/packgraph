@@ -6,7 +6,8 @@
 \alias{packgraph-package}
 \title{packgraph: Examine and Analyse Function Call Graphs of R Packages}
 \description{
-Examine and analyse function call graphs of R packages.
+Examine and analyse function call graphs of R
+    packages.
 }
 \seealso{
 Useful links:

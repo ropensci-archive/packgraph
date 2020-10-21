@@ -4,13 +4,17 @@
 \alias{pg_report}
 \title{pg_report}
 \usage{
-pg_report(g)
+pg_report(g, exported_only = TRUE)
 }
 \arguments{
 \item{g}{A package graph objected returned from \link{pg_graph}}
+
+\item{exported_only}{If \code{FALSE}, include statistics of internal
+(non-exported) functions, otherwise only summarise relationships between
+exported functions.}
 }
 \value{
-Summary report on package strucutre
+Summary report on package structure
 }
 \description{
 Report on package structure
