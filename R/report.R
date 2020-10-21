@@ -3,16 +3,19 @@
 #' Report on package structure
 #'
 #' @param g A package graph objected returned from \link{pg_graph}
+#' @param exported_only If `FALSE`, include statistics of internal
+#' (non-exported) functions, otherwise only summarise relationships between
+#' exported functions.
 #' @return Summary report on package strucutre
 #' @export
-pg_report <- function (g)
+pg_report <- function (g, exported_only = TRUE)
 {
     if (missing (g))
         stop ("g must be supplied")
 
     g$nodes$centrality [g$nodes$centrality == 0] <- NA
 
-    pkgstats <- get_pkg_stats (g)
+    pkgstats <- get_pkg_stats (g, exported_only)
 
     cli_out (pkgstats)
 
@@ -25,22 +28,27 @@ pkg_name <- function (pkg_dir)
     gsub ("Package:\\s?", "", desc [grep ("^Package\\:", desc)])
 }
 
-get_pkg_stats <- function (g)
+get_pkg_stats <- function (g, exported_only = TRUE)
 {
     g$nodes$loc <- g$nodes$line2 - g$nodes$line1 + 1
 
     pkgstats <- list (pkgname = attr (g, "pkg_name"))
     pkgstats$non_exports <- g$nodes [!g$nodes$export, ]
     pkgstats$exports <- g$nodes [g$nodes$export, ]
-    export_table <- table (pkgstats$exports$group)
+
+    if (exported_only)
+        nodes <- pkgstats$exports
+    else
+        nodes <- g$nodes
+    export_table <- table (nodes$group)
 
     cluster_groups <- as.integer (names (export_table) [which (export_table > 1)])
     isolated_groups <- as.integer (names (export_table) [which (export_table == 1)])
-    clusters <- pkgstats$exports [which (pkgstats$exports$group %in%
-                                         cluster_groups), ]
-    pkgstats$isolated <- pkgstats$exports [which (pkgstats$exports$group %in%
-                                                  isolated_groups), "name",
-                                            drop = TRUE]
+    clusters <- nodes [which (nodes$group %in% cluster_groups), ]
+
+    pkgstats$isolated <- nodes [which (nodes$group %in% isolated_groups),
+                                "name",
+                                drop = TRUE]
 
     # base-r way of gropuing and ordering
     pkgstats$clusters <- lapply (split (clusters, f = factor (clusters$group)),
