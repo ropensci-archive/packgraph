@@ -200,18 +200,28 @@ isolated_out <- function (pkgstats, md = FALSE) {
 
 doclines_out <- function (pkgstats, md = FALSE, exports = TRUE) {
 
+    type <- ifelse (exports, "exports", "non_exports")
+    stats <- pkgstats [[type]]
+
     type <- ifelse (exports, "exported", "non-exported")
-    txt <- paste0 ("Documentation of ", type, " functions")
+    txt <- paste0 ("Summary of ",
+                   nrow (stats),
+                   " ",
+                   type,
+                   " functions")
 
     if (md)
         txt <- c (paste0 ("### ", txt, ":"), "")
     else
         txt <- cli::rule (line = 1, left = txt)
 
-    type <- ifelse (exports, "exports", "non_exports")
-    stats <- pkgstats [[type]]
+    fn_lines <- stats$line2 - stats$line1 + 1
 
     vals <- data.frame (value = c ("mean", "median"),
+                num_params = c (round (mean (stats$num_params), digits = 1),
+                                stats::median (stats$num_params)),
+                num_lines = c (round (mean (fn_lines), digits = 1),
+                               stats::median (fn_lines)),
                 doclines = c (round (mean (stats$doc_lines), digits = 1),
                               stats::median (stats$doc_lines)),
                 cmtlines = c (round (mean (stats$cmt_lines), digits = 1),
