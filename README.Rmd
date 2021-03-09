@@ -10,43 +10,25 @@ Examine and analyse static function call graphs of R packages. Mostly derived
 from functionality provided by the [`r-lib/pkgapi`
 package](https://github.com/r-lib/pkgapi), which is not on CRAN and must first
 be installed with
+
 ```{r pkgapi, eval = FALSE}
 remotes::install_github ("r-lib/pkgapi")
 ```
 
-Currently contains a single function, `pg_graph()`, which returns all exported
-and non-exported functions from a package (as `nodes`), and tallies of all
-functional connections between these (as `edges`). The function also includes
-a `plot` parameter which can be used to visualize the resultant network using
-the [`visNetwork` package](https://github.com/datastorm-open/visNetwork).
+The main function, `pg_graph()`, returns all exported and non-exported
+functions from a package (as `nodes`), and tallies of all functional
+connections between these (as `edges`). The function also includes a `plot`
+parameter which can be used to visualize the resultant network using the
+[`visNetwork` package](https://github.com/datastorm-open/visNetwork).
 
-```{r example, eval = FALSE}
-git2r::clone ("https://github.com/ropensci/git2r", local_path = "./git2r")
+```{r example, eval = TRUE}
+library (packgraph)
+if (!file.exists ("./git2r"))
+    git2r::clone ("https://github.com/ropensci/git2r", local_path = "./git2r")
 # Currently needs absolute file paths to work
 pkg_dir <- tools::file_path_as_absolute ("./git2r")
 g <- pg_graph (pkg_dir, plot = FALSE)
 g
-```
-```{r example-fakey, echo = FALSE}
-id <- c (".onUnload", "[.git_tree", "add", "add_session_info", "ahead_behind",
-         "as.character.git_time", "as.data.frame.git_commit",
-         "as.data.frame.git_repository", "as.data.frame.git_tree",
-         "as.list.git_tree", rep (NA, 158))
-nodes <- tibble::tibble (id = id, label = id, export = FALSE, group = 1)
-nodes$export [c (3, 5)] <- TRUE
-
-
-from <- c ("[.git_tree", "add", "add", "ahead_behind",
-           "as.data.frame.git_repository", "as.list.git_tree", "blame",
-           "blob_create", "branches", "bundle_r_package", rep (NA, 192))
-to <- c ("lookup", "lookup_repository", "workdir", "lookup_commit", "commits",
-         "lookup", "lookup_repository", "lookup_repository",
-         "lookup_repository", "clone", rep (NA, 192))
-n <- rep (1, 202)
-n [4] <- 2
-edges <- tibble::tibble (from = from, to = to, n = n)
-
-list (nodes = nodes, edges = edges)
 ```
 
 # prior art
