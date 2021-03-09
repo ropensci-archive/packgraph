@@ -200,7 +200,7 @@ num_fun_params <- function (pkg_dir, nodes) {
                                              names (formals (f, envir = e)),
                                          logical (1))
 
-                     data.frame (fn_name = names (lens),
+                     data.frame (name = names (lens),
                                  num_params = as.integer (lens),
                                  has_dots = has_dots,
                                  row.names = NULL,
@@ -210,9 +210,10 @@ num_fun_params <- function (pkg_dir, nodes) {
     n <- do.call (rbind, n)
     n <- n [which (!duplicated (n)), ]
 
-    index <- match (n$fn_name, nodes$name)
-    nodes$num_params <- n$num_params [index]
-    nodes$has_dots <- n$has_dots [index]
+
+    nodes <- dplyr::left_join (nodes, n, by = "name")
+    nodes$num_params [is.na (nodes$num_params)] <- 0L
+    nodes$has_dots [is.na (nodes$has_dots)] <- FALSE
 
     return (nodes)
 }
