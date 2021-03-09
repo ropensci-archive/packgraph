@@ -8,8 +8,8 @@
 #' exported functions.
 #' @return Summary report on package structure
 #' @export
-pg_report <- function (g, exported_only = TRUE)
-{
+pg_report <- function (g, exported_only = TRUE) {
+
     if (missing (g))
         stop ("g must be supplied")
 
@@ -22,14 +22,14 @@ pg_report <- function (g, exported_only = TRUE)
     invisible (md_out (g, pkgstats))
 }
 
-pkg_name <- function (pkg_dir)
-{
+pkg_name <- function (pkg_dir) {
+
     desc <- readLines (file.path (pkg_dir, "DESCRIPTION"))
     gsub ("Package:\\s?", "", desc [grep ("^Package\\:", desc)])
 }
 
-get_pkg_stats <- function (g, exported_only = TRUE)
-{
+get_pkg_stats <- function (g, exported_only = TRUE) {
+
     g$nodes$loc <- g$nodes$line2 - g$nodes$line1 + 1
 
     pkgstats <- list (pkgname = attr (g, "pkg_name"))
@@ -42,8 +42,10 @@ get_pkg_stats <- function (g, exported_only = TRUE)
         nodes <- g$nodes
     export_table <- table (nodes$group)
 
-    cluster_groups <- as.integer (names (export_table) [which (export_table > 1)])
-    isolated_groups <- as.integer (names (export_table) [which (export_table == 1)])
+    cluster_groups <- names (export_table) [which (export_table > 1)] %>%
+        as.integer ()
+    isolated_groups <- names (export_table) [which (export_table == 1)] %>%
+        as.integer ()
     clusters <- nodes [which (nodes$group %in% cluster_groups), ]
 
     pkgstats$isolated <- nodes [which (nodes$group %in% isolated_groups),
@@ -66,14 +68,16 @@ get_pkg_stats <- function (g, exported_only = TRUE)
 
 list_collapse <- function (x) {
     if (length (x) > 1)
-        x <- paste0 (paste0 (x [-length (x)], collapse = ", "), " and ", x [length (x)])
+        x <- paste0 (paste0 (x [-length (x)],
+                             collapse = ", "),
+                     " and ", x [length (x)])
     return (x)
 }
 
 
 # screen output via cli
-cli_out <- function (pkgstats)
-{
+cli_out <- function (pkgstats) {
+
     message (cli::rule (line = 2, left = pkgstats$pkgname, col = "green"))
     cli::cli_text ("")
 
@@ -83,8 +87,8 @@ cli_out <- function (pkgstats)
                   print (knitr::kable (i)))
     cli::cli_text ("")
 
-    if (pkgstats$num_isolated > 0)
-    {
+    if (pkgstats$num_isolated > 0) {
+
         res <- isolated_out (pkgstats, md = FALSE)
         cli::cli_text (res$txt)
         print (knitr::kable (res$iso_fns))
@@ -97,15 +101,15 @@ cli_out <- function (pkgstats)
     print (knitr::kable (dl$vals))
 
     out <- central_node_docs (pkgstats)
-    if (length (out) > 1)
-    {
+    if (length (out) > 1) {
+
         cli::cli_text ("")
         cli::cli_text (out)
     }
 }
 
-md_out <- function (g, pkgstats)
-{
+md_out <- function (g, pkgstats) {
+
     out <- c (paste0 ("## ", pkgstats$pkgname), "")
 
     out <- c (out, clusters_out (pkgstats, md = TRUE), "")
@@ -113,8 +117,8 @@ md_out <- function (g, pkgstats)
     for (i in clusters_list (pkgstats, md = TRUE))
         out <- c (out, knitr::kable (i, format = "markdown"), "")
 
-    if (pkgstats$num_isolated > 0)
-    {
+    if (pkgstats$num_isolated > 0) {
+
         res <- isolated_out (pkgstats, md = TRUE)
         out <- c (out, res$txt, knitr::kable (res$iso_fns, format = "markdown"))
     }
@@ -130,8 +134,8 @@ md_out <- function (g, pkgstats)
 }
 
 # Summary output of numbers and sizes of clusters
-clusters_out <- function (pkgstats, md = FALSE)
-{
+clusters_out <- function (pkgstats, md = FALSE) {
+
     cs <- paste0 (pkgstats$cluster_sizes)
     # if multiple clusters, or single cluster and multiple functions:
     cluster_fn_fmt <- ifelse ((length (pkgstats$cluster_sizes) > 1 |
@@ -149,28 +153,29 @@ clusters_out <- function (pkgstats, md = FALSE)
 }
 
 # Summary output of cluster memberships
-clusters_list <- function (pkgstats, md = FALSE)
-{
-    out <- list ()
-    for (i in seq (pkgstats$clusters))
-    {
-        out [[i]] <- data.frame (cluster = i,
-                                 n = seq (nrow (pkgstats$clusters [[i]])),
-                                 name = pkgstats$clusters [[i]]$name,
-                                 num_params = pkgstats$clusters [[i]]$nparams,
-                                 num_doc_words = pkgstats$clusters [[i]]$n_doc_words,
-                                 num_doc_lines = pkgstats$clusters [[i]]$doc_lines,
-                                 num_example_lines = pkgstats$clusters [[i]]$n_example_lines,
-                                 centrality = pkgstats$clusters [[i]]$centrality,
-                                 row.names = NULL)
-    }
+clusters_list <- function (pkgstats, md = FALSE) {
 
-    return (out)
+    out <- list ()
+    for (i in seq (pkgstats$clusters)) {
+
+        out [[i]] <- data.frame (
+                cluster = i,
+                 n = seq (nrow (pkgstats$clusters [[i]])),
+                 name = pkgstats$clusters [[i]]$name,
+                 num_params = pkgstats$clusters [[i]]$nparams,
+                 num_doc_words = pkgstats$clusters [[i]]$n_doc_words,
+                 num_doc_lines = pkgstats$clusters [[i]]$doc_lines,
+                 num_example_lines = pkgstats$clusters [[i]]$n_example_lines,
+                 centrality = pkgstats$clusters [[i]]$centrality,
+                 row.names = NULL)
+}
+
+return (out)
 }
 
 # Summary output of isolated functions
-isolated_out <- function (pkgstats, md = FALSE)
-{
+isolated_out <- function (pkgstats, md = FALSE) {
+
     nmtxt <- ifelse (pkgstats$num_isolated > 1, "are", "is")
     out_txt <- paste0 ("There ", nmtxt, " also ", pkgstats$num_isolated,
                        " isolated function",
@@ -184,8 +189,8 @@ isolated_out <- function (pkgstats, md = FALSE)
     list (txt = out_txt, iso_fns = iso_fns)
 }
 
-doclines_non_exp <- function (pkgstats, md = FALSE)
-{
+doclines_non_exp <- function (pkgstats, md = FALSE) {
+
     txt <- "Documentation of non-exported functions"
     if (md)
         txt <- c (paste0 ("### ", txt, ":"), "")
@@ -193,26 +198,29 @@ doclines_non_exp <- function (pkgstats, md = FALSE)
         txt <- cli::rule (line = 1, left = txt)
 
     vals <- data.frame (value = c ("mean", "median"),
-                        doclines = c (round (mean (pkgstats$non_exports$doc_lines),
-                                             digits = 1),
-                                      stats::median (pkgstats$non_exports$doc_lines)),
-                        cmtlines = c (round (mean (pkgstats$non_exports$cmt_lines),
-                                             digits = 1),
-                                      stats::median (pkgstats$non_exports$cmt_lines)))
+                doclines = c (round (mean (pkgstats$non_exports$doc_lines),
+                                     digits = 1),
+                              stats::median (pkgstats$non_exports$doc_lines)),
+                cmtlines = c (round (mean (pkgstats$non_exports$cmt_lines),
+                                     digits = 1),
+                              stats::median (pkgstats$non_exports$cmt_lines)))
 
     list (txt = txt, vals = vals)
 }
 
-central_node_docs <- function (pkgstats)
-{
-    n <- pkgstats$exports [which (pkgstats$exports$centrality > 0), ]
+central_node_docs <- function (pkgstats) {
+
+    n <- pkgstats$exports
+    n <- n [which (n$centrality > 0), ]
     out <- ""
 
-    if (nrow (n) > 4) # only analyse if > 4 fns have non-zero centrality measures
-    {
+    # only analyse if > 4 fns have non-zero centrality measures
+    if (nrow (n) > 4) {
+
         r2_doc_all <- stats::cor (n$centrality, n$doc_lines)
         r2_ex <- stats::cor (n$centrality, n$n_example_lines)
-        r2_doc_no_ex <- stats::cor (n$centrality, n$doc_lines - n$n_example_lines)
+        r2_doc_no_ex <- stats::cor (n$centrality,
+                                    n$doc_lines - n$n_example_lines)
 
         if (r2_doc_all < 0)
             out <- c (out, paste0 ("More central functions should be ",
@@ -220,8 +228,8 @@ central_node_docs <- function (pkgstats)
                                    "functions, yet this is not the case here"))
         if (r2_ex < 0)
             out <- c (out, paste0 ("More central functions should have ",
-                                   "more extensive examples than less ",
-                                   "central functions, yet this is not the case here"))
+                                   "more extensive examples than less central ",
+                                   "functions, yet this is not the case here"))
     }
 
     return (out)
