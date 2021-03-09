@@ -78,6 +78,8 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
     # Detailed summaries of fn docs via analyses of /man entries:
     nodes <- get_doc_metrics (pkg_dir, nodes)
 
+    nodes <- num_fun_params (pkg_dir, nodes) # append num_fun_params
+
     res <- list (nodes = nodes, edges = edges)
     attr (res, "pkg_name") <- pkg_name (pkg_dir)
 
@@ -162,25 +164,55 @@ get_doc_metrics <- function (pkg_dir, nodes) {
                                  length (res)
                 }, numeric (1))
 
-    nparams <- vapply (d, function (i) {
-                           ret <- 0L
-                           if ("arguments" %in% names (i))
-                               ret <- length (grep ("\\\\item", i$arguments))
-                           return (ret) }, integer (1))
-
     nwords <- vapply (d, function (i) {
                           index <- grep ("description|^note", names (i))
                           stringr::str_count (paste (i [index], collapse = " "))
                            }, integer (1))
 
     index <- match (names (d), nodes$name)
-    nodes$nparams <- nodes$n_doc_words <- nodes$n_example_lines <- NA_integer_
+    nodes$n_doc_words <- nodes$n_example_lines <- NA_integer_
     nodes$has_usage <- FALSE
 
-    nodes$nparams [index] <- nparams
     nodes$n_doc_words [index] <- nwords
     nodes$n_example_lines [index] <- example_lines
     nodes$has_usage [index] <- has_usage
+
+    return (nodes)
+}
+
+num_fun_params <- function (pkg_dir, nodes) {
+
+    r_files <- file.path (pkg_dir, unique (nodes$file))
+
+    n <- lapply (r_files, function (i) {
+
+                     x <- parse (text = readLines (i))
+                     e <- new.env ()
+                     eval (x, envir = e)
+
+                     fns_i <- ls (e)
+
+                     lens <- vapply (fns_i, function (f)
+                                     length (formals (f, envir = e)),
+                                     integer (1))
+                     has_dots <- vapply (fns_i, function (f)
+                                         "..." %in%
+                                             names (formals (f, envir = e)),
+                                         logical (1))
+
+                     data.frame (fn_name = names (lens),
+                                 num_params = as.integer (lens),
+                                 has_dots = has_dots,
+                                 row.names = NULL,
+                                 stringsAsFactors = FALSE)
+                           })
+
+    n <- do.call (rbind, n)
+    n <- n [which (!duplicated (n)), ]
+
+    index <- match (n$fn_name, nodes$name)
+    nodes$num_params <- n$num_params [index]
+    nodes$has_dots <- n$has_dots [index]
 
     return (nodes)
 }
