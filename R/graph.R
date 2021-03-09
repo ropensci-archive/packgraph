@@ -191,6 +191,10 @@ num_fun_params <- function (pkg_dir, nodes) {
                      eval (x, envir = e)
 
                      fns_i <- ls (e)
+                     is_fn <- vapply (fns_i, function (f)
+                                      class (get (f, envir = e)) == "function",
+                                      logical (1))
+                     fns_i <- fns_i [which (is_fn)]
 
                      lens <- vapply (fns_i, function (f)
                                      length (formals (f, envir = e)),
