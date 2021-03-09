@@ -95,7 +95,13 @@ cli_out <- function (pkgstats) {
     }
     cli::cli_text ("")
 
-    dl <- doclines_out (pkgstats, non_exports = TRUE)
+    dl <- doclines_out (pkgstats, exports = TRUE)
+    #cli::cli_text (dl$txt)
+    message (dl$txt)
+    print (knitr::kable (dl$vals))
+    message ()
+
+    dl <- doclines_out (pkgstats, exports = FALSE)
     #cli::cli_text (dl$txt)
     message (dl$txt)
     print (knitr::kable (dl$vals))
@@ -125,7 +131,10 @@ md_out <- function (g, pkgstats) {
 
     out <- c (out, "")
 
-    dl <- doclines_out (pkgstats, md = TRUE, non_exports = TRUE)
+    dl <- doclines_out (pkgstats, md = TRUE, exports = TRUE)
+    out <- c (out, dl$txt, knitr::kable (dl$vals, format = "markdown"))
+
+    dl <- doclines_out (pkgstats, md = TRUE, exports = FALSE)
     out <- c (out, dl$txt, knitr::kable (dl$vals, format = "markdown"))
 
     out <- c (out, central_node_docs (pkgstats))
@@ -189,9 +198,9 @@ isolated_out <- function (pkgstats, md = FALSE) {
     list (txt = out_txt, iso_fns = iso_fns)
 }
 
-doclines_out <- function (pkgstats, md = FALSE, non_exports = TRUE) {
+doclines_out <- function (pkgstats, md = FALSE, exports = TRUE) {
 
-    type <- ifelse (non_exports, "non-exported", "exported")
+    type <- ifelse (exports, "exported", "non-exported")
     txt <- paste0 ("Documentation of ", type, " functions")
 
     if (md)
@@ -199,8 +208,9 @@ doclines_out <- function (pkgstats, md = FALSE, non_exports = TRUE) {
     else
         txt <- cli::rule (line = 1, left = txt)
 
-    type <- ifelse (non_exports, "non_exports", "exports")
+    type <- ifelse (exports, "exports", "non_exports")
     stats <- pkgstats [[type]]
+
     vals <- data.frame (value = c ("mean", "median"),
                 doclines = c (round (mean (stats$doc_lines), digits = 1),
                               stats::median (stats$doc_lines)),
