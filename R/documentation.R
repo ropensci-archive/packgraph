@@ -55,11 +55,12 @@ get_one_doc <- function (rdfile) {
                       "arguments", "details", "value", "references", "note",
                       "author", "seealso", "examples", "keyword", "section")
     index <- which (!names (fields) %in% r_ext_names)
-    index <- index [index > 1] # can do anything about non-compliant initial fields
+    # can't do anything about non-compliant initial fields:
+    index <- index [index > 1]
     while (length (index) > 0) {
         fields [[index [1] - 1]] <- c (fields [[index [1] - 1]],
-                                       fields [[index [1] ]])
-        fields <- fields [-index [1] ]
+                                       fields [[index [1] ]]) # nolint
+        fields <- fields [-index [1]]
         index <- which (!names (fields) %in% r_ext_names)
         index <- index [index > 1]
     }
