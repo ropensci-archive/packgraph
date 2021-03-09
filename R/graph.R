@@ -9,14 +9,17 @@
 #' various exported and non-exported functions of a package.
 #' @export
 pg_graph <- function (pkg_dir, plot = TRUE) {
+
     pkgmap <- pkgapi::map_package (pkg_dir)
 
     # suppress no visible binding notes:
     from <- to <- NULL
+
     edges <- pkgmap$calls %>%
         dplyr::group_by (from, to) %>%
         dplyr::summarise (n = length (from)) %>%
         dplyr::ungroup ()
+
     edges$from <- paste0 (pkgmap$name, "::", edges$from)
     nodes <- unique (c (edges$from, edges$to))
     export <- gsub (paste0 (pkgmap$name, "::"), "", nodes) %in% pkgmap$exports
@@ -44,12 +47,14 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
     nodes$group <- cl$membership [match (nodes$name, names (cl$membership))] %>%
         as.integer ()
     index <- which (is.na (nodes$group))
-    nodes$group [index] <- max (nodes$group, na.rm = TRUE) + seq (length (index))
+    nodes$group [index] <- max (nodes$group, na.rm = TRUE) +
+        seq (length (index))
 
     edges <- edges [which (!(edges$from == "" | edges$to == "")), ]
     nodes$centrality <- node_centrality (nodes, edges)
 
     if (plot) {
+
         edges$width <- 10 * edges$n
         nodes$value <- nodes$centrality
         nodes$id <- nodes$label <- nodes$name
@@ -79,8 +84,8 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
     return (res)
 }
 
-node_centrality <- function (nodes, edges)
-{
+node_centrality <- function (nodes, edges) {
+
     ig <- igraph::graph_from_data_frame (edges, vertices = nodes)
     ig <- igraph::set_edge_attr (ig, "weight",
                                  value = igraph::edge.attributes (ig)$n)
@@ -90,11 +95,14 @@ node_centrality <- function (nodes, edges)
 
 # count documentation lines preceding all fn defintions
 doc_lines_one_file <- function (pkg_dir, nodes, filename) {
+
     nds <- nodes [nodes$file == filename, ]
     nds <- nds [order (nds$line1), ]
 
     x <- readLines (file.path (pkg_dir, filename), warn = FALSE)
-    x <- split (x, findInterval (seq (length (x)), nds$line2 + 1)) [seq (nrow (nds))]
+    x <- split (x,
+                findInterval (seq (length (x)),
+                              nds$line2 + 1)) [seq (nrow (nds))]
 
     #index <- which (!nodes$export)
     #x <- x [index]
@@ -108,7 +116,8 @@ doc_lines_one_file <- function (pkg_dir, nodes, filename) {
                           doclines <- which (p$token != "COMMENT") [1] - 1
                           index <- NULL
                           if (!is.na (doclines))
-                              index <- which (p$token [(doclines + 1):nrow (p)] ==
+                              index <- which (p$token [(doclines +
+                                                        1):nrow (p)] ==
                                               "COMMENT")
                           cmtlines <- length (index)
                           index2 <- grep ("to*do", p$text [index],
@@ -119,6 +128,7 @@ doc_lines_one_file <- function (pkg_dir, nodes, filename) {
                           if (length (index2) > 0)
                               todo_line_nums <- p$line1 [index] [index2]
                           list (res, todo_line_nums)    })
+
     todo_lines <- lapply (nlines, function (i) i [[2]])
     nlines <- do.call (rbind, lapply (nlines, function (i) i [[1]]))
 
@@ -127,18 +137,21 @@ doc_lines_one_file <- function (pkg_dir, nodes, filename) {
                        cmtlines = nlines [, 2],
                        todos = nlines [, 3],
                        stringsAsFactors = FALSE)
+
     res$todo_lines <- todo_lines # list column
 
     return (res)
 }
 
 doc_lines <- function (pkg_dir, nodes) {
+
     files <- unique (nodes$file)
     res <- lapply (files, function (i) doc_lines_one_file (pkg_dir, nodes, i))
     do.call (rbind, res)
 }
 
 get_doc_metrics <- function (pkg_dir, nodes) {
+
     d <- pg_documentation (pkg_dir)
     d <- d [which (names (d) %in% nodes$name)]
 
@@ -154,6 +167,7 @@ get_doc_metrics <- function (pkg_dir, nodes) {
                            if ("arguments" %in% names (i))
                                ret <- length (grep ("\\\\item", i$arguments))
                            return (ret) }, integer (1))
+
     nwords <- vapply (d, function (i) {
                           index <- grep ("description|^note", names (i))
                           stringr::str_count (paste (i [index], collapse = " "))

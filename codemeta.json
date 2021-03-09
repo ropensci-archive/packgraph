@@ -5,18 +5,18 @@
   ],
   "@type": "SoftwareSourceCode",
   "identifier": "packgraph",
-  "description": "Examine and analyse function call graphs of R\n    packages.",
+  "description": "Examine and analyse function call graphs of R packages.",
   "name": "packgraph: Examine and Analyse Function Call Graphs of R Packages",
   "codeRepository": "https://github.com/mpadge/packgraph",
   "issueTracker": "https://github.com/mpadge/packgraph/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.0.10",
+  "version": "0.0.0.11",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.0.3 (2020-10-10)",
+  "runtimePlatform": "R version 4.0.4 (2021-02-15)",
   "author": [
     {
       "@type": "Person",
@@ -159,8 +159,8 @@
       "sameAs": "https://CRAN.R-project.org/package=visNetwork"
     }
   ],
-  "readme": "https://github.com/mpadge/packgraph/blob/master/README.md",
-  "fileSize": "40.407KB",
+  "readme": "https://github.com/ropenscilabs/packgraph/blob/master/README.md",
+  "fileSize": "40.537KB",
   "contIntegration": "https://travis-ci.org/mpadge/packgraph",
   "developmentStatus": "https://www.repostatus.org/#concept"
 }
