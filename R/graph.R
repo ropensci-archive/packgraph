@@ -59,7 +59,9 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
         nodes$value <- nodes$centrality
         nodes$id <- nodes$label <- nodes$name
         vn <- visNetwork::visNetwork (nodes, edges,
-                                      main = paste0 (pkgmap$name, " network"))
+                                      main = paste0 (pkgmap$name, " network")) %>%
+            visNetwork::visEdges (arrows =list (to = list(enabled = TRUE,
+                                                          scaleFactor = 0.2)))
 
         print (vn)
         edges$width <- NULL
