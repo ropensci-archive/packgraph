@@ -82,7 +82,9 @@ pg_graph <- function (pkg_dir,
                             collapse = .Platform$file.sep)
             if (!file.exists (path))
                 dir.create (path, recursive = TRUE)
-            visNetwork::visSave (vn, vis_save)
+            visNetwork::visSave (vn, vis_save,
+                                 selfcontained = TRUE)
+
         } else {
             print (vn)
         }

@@ -1,6 +1,6 @@
 Package: packgraph
 Title: Examine and Analyse Function Call Graphs of R Packages
-Version: 0.0.0.024
+Version: 0.0.0.025
 Authors@R: 
     person(given = "Mark",
            family = "Padgham",
