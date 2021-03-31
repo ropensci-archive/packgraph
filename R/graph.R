@@ -4,11 +4,15 @@
 #'
 #' @param pkg_dir Directory containing the package
 #' @param plot If `TRUE`, plot the network using \pkg{visNetwork} which opens an
-#' interactive browswer pane.
+#' interactive browser pane.
+#' @param vis_save Name of local file in which to save `html` file of network
+#' visualisation (will override `plot` to `FALSE`).
 #' @return A `list` of `nodes` and `edges` describing connections between the
 #' various exported and non-exported functions of a package.
 #' @export
-pg_graph <- function (pkg_dir, plot = TRUE) {
+pg_graph <- function (pkg_dir,
+                      plot = TRUE,
+                      vis_save = NULL) {
 
     pkgmap <- pkgapi::map_package (pkg_dir)
 
@@ -53,17 +57,35 @@ pg_graph <- function (pkg_dir, plot = TRUE) {
     edges <- edges [which (!(edges$from == "" | edges$to == "")), ]
     nodes$centrality <- node_centrality (nodes, edges)
 
-    if (plot) {
+    if (plot | !is.null (vis_save)) {
 
         edges$width <- 10 * edges$n
         nodes$value <- nodes$centrality
         nodes$id <- nodes$label <- nodes$name
         vn <- visNetwork::visNetwork (nodes, edges,
-                                      main = paste0 (pkgmap$name, " network")) %>%
-            visNetwork::visEdges (arrows =list (to = list(enabled = TRUE,
-                                                          scaleFactor = 0.2)))
+                                      main = paste0 (pkgmap$name,
+                                                     " network")) %>%
+            visNetwork::visEdges (arrows = list (to = list(enabled = TRUE,
+                                                           scaleFactor = 0.2)))
 
-        print (vn)
+        if (!is.null (vis_save)) {
+            if (!is.character (vis_save))
+                stop ("vis_save must be a character specifying a file name")
+            if (length (vis_save) > 1)
+                stop ("vis_save must be a single character")
+
+            vis_save <- paste0 (tools::file_path_sans_ext (vis_save),
+                               ".html")
+            path <- strsplit (vis_save, .Platform$file.sep) [[1]]
+            # can't use normalizePath because that fails if path does not exist
+            path <- paste0 (path [-length (path)],
+                            collapse = .Platform$file.sep)
+            if (!file.exists (path))
+                dir.create (path, recursive = TRUE)
+            visNetwork::visSave (vn, vis_save)
+        } else {
+            print (vn)
+        }
         edges$width <- NULL
         nodes$value <- nodes$label <- nodes$id <- NULL
     }

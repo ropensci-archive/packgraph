@@ -4,13 +4,16 @@
 \alias{pg_graph}
 \title{pg_graph}
 \usage{
-pg_graph(pkg_dir, plot = TRUE)
+pg_graph(pkg_dir, plot = TRUE, vis_save = NULL)
 }
 \arguments{
 \item{pkg_dir}{Directory containing the package}
 
 \item{plot}{If \code{TRUE}, plot the network using \pkg{visNetwork} which opens an
-interactive browswer pane.}
+interactive browser pane.}
+
+\item{vis_save}{Name of local file in which to save \code{html} file of network
+visualisation (will override \code{plot} to \code{FALSE}).}
 }
 \value{
 A \code{list} of \code{nodes} and \code{edges} describing connections between the
