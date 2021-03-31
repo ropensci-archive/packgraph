@@ -3,19 +3,16 @@
 #' Report on package structure
 #'
 #' @param g A package graph objected returned from \link{pg_graph}
-#' @param exported_only If `FALSE`, include statistics of internal
-#' (non-exported) functions, otherwise only summarise relationships between
-#' exported functions.
 #' @return Summary report on package structure
 #' @export
-pg_report <- function (g, exported_only = TRUE) {
+pg_report <- function (g) {
 
     if (missing (g))
         stop ("g must be supplied")
 
     g$nodes$centrality [g$nodes$centrality == 0] <- NA
 
-    pkgstats <- get_pkg_stats (g, exported_only)
+    pkgstats <- get_pkg_stats (g)
 
     cli_out (pkgstats)
 
@@ -28,7 +25,7 @@ pkg_name <- function (pkg_dir) {
     gsub ("Package:\\s?", "", desc [grep ("^Package\\:", desc)])
 }
 
-get_pkg_stats <- function (g, exported_only = TRUE) {
+get_pkg_stats <- function (g) {
 
     g$nodes$loc <- g$nodes$line2 - g$nodes$line1 + 1
 
@@ -36,21 +33,17 @@ get_pkg_stats <- function (g, exported_only = TRUE) {
     pkgstats$non_exports <- g$nodes [!g$nodes$export, ]
     pkgstats$exports <- g$nodes [g$nodes$export, ]
 
-    if (exported_only)
-        nodes <- pkgstats$exports
-    else
-        nodes <- g$nodes
-    export_table <- table (nodes$group)
+    group_table <- table (g$nodes$group)
 
-    cluster_groups <- names (export_table) [which (export_table > 1)] %>%
+    cluster_groups <- names (group_table) [which (group_table > 1)] %>%
         as.integer ()
-    isolated_groups <- names (export_table) [which (export_table == 1)] %>%
+    isolated_groups <- names (group_table) [which (group_table == 1)] %>%
         as.integer ()
-    clusters <- nodes [which (nodes$group %in% cluster_groups), ]
+    clusters <- g$nodes [which (g$nodes$group %in% cluster_groups), ]
 
-    pkgstats$isolated <- nodes [which (nodes$group %in% isolated_groups),
-                                "name",
-                                drop = TRUE]
+    pkgstats$isolated <- g$nodes [which (g$nodes$group %in% isolated_groups),
+                                  "name",
+                                  drop = TRUE]
 
     # base-r way of grouping and ordering
     pkgstats$clusters <- lapply (split (clusters, f = factor (clusters$group)),
@@ -171,6 +164,7 @@ clusters_list <- function (pkgstats, md = FALSE) {
                 cluster = i,
                  n = seq (nrow (pkgstats$clusters [[i]])),
                  name = pkgstats$clusters [[i]]$name,
+                 exported = pkgstats$clusters [[i]]$export,
                  num_params = pkgstats$clusters [[i]]$num_params,
                  num_doc_words = pkgstats$clusters [[i]]$n_doc_words,
                  num_doc_lines = pkgstats$clusters [[i]]$doc_lines,
