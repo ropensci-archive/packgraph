@@ -14,6 +14,10 @@ pg_graph <- function (pkg_dir,
                       plot = TRUE,
                       vis_save = NULL) {
 
+    if ("configure" %in% list.files (pkg_dir)) {
+        cmd <- paste0 ("chmod +744 ", file.path (pkg_dir, "configure"))
+        system (cmd)
+    }
     pkgmap <- pkgapi::map_package (pkg_dir)
 
     # suppress no visible binding notes:
