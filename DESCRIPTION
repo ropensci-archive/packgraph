@@ -1,6 +1,6 @@
 Package: packgraph
 Title: Examine and Analyse Function Call Graphs of R Packages
-Version: 0.0.0.028
+Version: 0.0.0.029
 Authors@R: 
     person(given = "Mark",
            family = "Padgham",
@@ -26,6 +26,8 @@ Suggests:
     rmarkdown
 VignetteBuilder: 
     knitr
+Remotes:
+    rlib/pkgapi
 Encoding: UTF-8
 Language: en-GB
 LazyData: true

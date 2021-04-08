@@ -10,13 +10,13 @@
   "codeRepository": "https://github.com/mpadge/packgraph",
   "issueTracker": "https://github.com/mpadge/packgraph/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.0.028",
+  "version": "0.0.0.29",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.0.4 (2021-02-15)",
+  "runtimePlatform": "R version 4.0.5 (2021-03-31)",
   "author": [
     {
       "@type": "Person",
@@ -120,7 +120,8 @@
     {
       "@type": "SoftwareApplication",
       "identifier": "pkgapi",
-      "name": "pkgapi"
+      "name": "pkgapi",
+      "sameAs": "https://github.com/rlib/pkgapi"
     },
     {
       "@type": "SoftwareApplication",
@@ -160,7 +161,7 @@
     }
   ],
   "readme": "https://github.com/ropenscilabs/packgraph/blob/main/README.md",
-  "fileSize": "42.08KB",
+  "fileSize": "41.748KB",
   "contIntegration": "https://travis-ci.org/mpadge/packgraph",
   "developmentStatus": "https://www.repostatus.org/#concept"
 }
